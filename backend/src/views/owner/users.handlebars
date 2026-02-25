@@ -1,0 +1,306 @@
+<div class="panel-layout" style="display: flex;">
+    {{> sidebar }} 
+    <main class="panel-content" style="flex-grow: 1; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>👥 Gestión de Usuarios</h2>
+            <button class="btn-add" onclick="prepareAddModal()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                + Agregar Usuario
+            </button>
+        </div>
+
+        <!-- Estadísticas rápidas -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff;">
+                <h3 style="margin: 0; color: #666; font-size: 14px;">Total Usuarios</h3>
+                <p style="margin: 5px 0 0; font-size: 24px; font-weight: bold; color: #007bff;">{{stats.total}}</p>
+            </div>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745;">
+                <h3 style="margin: 0; color: #666; font-size: 14px;">Usuarios Activos</h3>
+                <p style="margin: 5px 0 0; font-size: 24px; font-weight: bold; color: #28a745;">{{stats.activos}}</p>
+            </div>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                <h3 style="margin: 0; color: #666; font-size: 14px;">Clientes</h3>
+                <p style="margin: 5px 0 0; font-size: 24px; font-weight: bold; color: #ffc107;">{{stats.clientes}}</p>
+            </div>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #dc3545;">
+                <h3 style="margin: 0; color: #666; font-size: 14px;">Inactivos</h3>
+                <p style="margin: 5px 0 0; font-size: 24px; font-weight: bold; color: #dc3545;">{{stats.inactivos}}</p>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div style="margin: 20px 0; display: flex; gap: 10px; background: #f9f9f9; padding: 15px; border-radius: 8px; align-items: center; border: 1px solid #ddd; flex-wrap: wrap;">
+            <input type="text" id="filterName" placeholder="🔍 Buscar por nombre..." style="flex: 1; min-width: 200px; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            <input type="email" id="filterEmail" placeholder="📧 Buscar por email..." style="flex: 1; min-width: 200px; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            <select id="filterRole" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                <option value="">Todos los roles</option>
+                <option value="cliente">Cliente</option>
+                <option value="admin">Admin</option>
+            </select>
+            <select id="filterStatus" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                <option value="">Todos los estados</option>
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
+            </select>
+            <button onclick="applyFilters()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Filtrar
+            </button>
+        </div>
+
+        <!-- Tabla de usuarios -->
+        <table border="1" style="width: 100%; border-collapse: collapse; margin-top: 20px; background: white;">
+            <thead>
+                <tr style="background-color: #f4f4f4;">
+                    <th style="padding: 12px; text-align: left;">Nombre</th>
+                    <th style="padding: 12px; text-align: left;">Email</th>
+                    <th style="padding: 12px; text-align: left;">Teléfono</th>
+                    <th style="padding: 12px; text-align: center;">Rol</th>
+                    <th style="padding: 12px; text-align: center;">Estado</th>
+                    <th style="padding: 12px; text-align: center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                {{#each users}}
+                <tr class="user-row" data-name="{{this.name}}" data-email="{{this.email}}" data-role="{{this.role}}" data-status="{{this.status}}">
+                    <td style="padding: 10px;">{{this.name}}</td>
+                    <td style="padding: 10px;">{{this.email}}</td>
+                    <td style="padding: 10px;">{{default this.phone '-'}}</td>
+                    <td style="padding: 10px; text-align: center;">
+                        <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; 
+                            background: {{#if (eq this.role 'admin')}}#dc3545{{else}}#007bff{{/if}}; 
+                            color: white;">
+                            {{this.role}}
+                        </span>
+                    </td>
+                    <td style="padding: 10px; text-align: center;">
+                        <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; 
+                            background: {{#if (eq this.status 'activo')}}#28a745{{else}}#6c757d{{/if}}; 
+                            color: white;">
+                            {{this.status}}
+                        </span>
+                    </td>
+                    <td style="padding: 10px; text-align: center;">
+                        <button onclick="prepareEditModal({
+                            id: '{{this.id}}',
+                            name: '{{this.name}}',
+                            email: '{{this.email}}',
+                            phone: '{{this.phone}}',
+                            address: '{{this.address}}',
+                            role: '{{this.role}}',
+                            status: '{{this.status}}',
+                            notes: '{{this.notes}}'
+                        })" style="background: #ffc107; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin-right: 5px;">
+                            Editar
+                        </button>
+                        {{#unless (eq this.email ../user.email)}}
+                        <button style="color: white; background: #dc3545; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;" 
+                                onclick="confirmDelete('{{this.id}}', '{{this.name}}')">
+                            Eliminar
+                        </button>
+                        {{/unless}}
+                    </td>
+                </tr>
+                {{/each}}
+                {{#unless users.length}}
+                <tr>
+                    <td colspan="6" style="padding: 20px; text-align: center; color: #999;">
+                        No hay usuarios registrados
+                    </td>
+                </tr>
+                {{/unless}}
+            </tbody>
+        </table>
+    </main>
+</div>
+
+<!-- Modal de Usuario -->
+<div id="userModal" class="modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
+    <div class="modal-content" style="background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+            <h3 id="modalTitle">Nuevo Usuario</h3>
+            <button onclick="closeModal()" style="background:none; border:none; font-size:25px; cursor:pointer;">&times;</button>
+        </div>
+
+        <form id="userForm">
+            <input type="hidden" id="userId" name="userId">
+            
+            <div style="display: grid; gap: 15px;">
+                <div>
+                    <label>Nombre *</label>
+                    <input type="text" name="name" required class="full-width">
+                    <span id="err-name" class="error-msg" style="color:red; font-size:12px;"></span>
+                </div>
+                
+                <div>
+                    <label>Email *</label>
+                    <input type="email" name="email" required class="full-width">
+                    <span id="err-email" class="error-msg" style="color:red; font-size:12px;"></span>
+                </div>
+                
+                <div>
+                    <label>Teléfono</label>
+                    <input type="text" name="phone" class="full-width">
+                </div>
+                
+                <div>
+                    <label>Dirección</label>
+                    <input type="text" name="address" class="full-width">
+                </div>
+                
+                <div>
+                    <label>Rol *</label>
+                    <select name="role" required class="full-width">
+                        <option value="cliente">Cliente</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                    <span id="err-role" class="error-msg" style="color:red; font-size:12px;"></span>
+                </div>
+                
+                <div>
+                    <label>Estado *</label>
+                    <select name="status" required class="full-width">
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                    <span id="err-status" class="error-msg" style="color:red; font-size:12px;"></span>
+                </div>
+                
+                <div>
+                    <label>Notas</label>
+                    <textarea name="notes" rows="3" class="full-width"></textarea>
+                </div>
+            </div>
+
+            <button type="submit" id="btnSubmit" class="btn-submit">Guardar Usuario</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .full-width { width: 100%; box-sizing: border-box; margin-bottom: 5px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    .btn-submit { margin-top:20px; width:100%; padding:12px; background: #28a745; color:white; border:none; border-radius:5px; font-size: 16px; cursor: pointer; }
+    .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+    .error-msg { color: red; font-size: 12px; display: block; margin-top: 2px; }
+</style>
+
+<script>
+    const modal = document.getElementById('userModal');
+    
+    // --- FILTROS ---
+    function applyFilters() {
+        const name = document.getElementById('filterName').value.toLowerCase();
+        const email = document.getElementById('filterEmail').value.toLowerCase();
+        const role = document.getElementById('filterRole').value.toLowerCase();
+        const status = document.getElementById('filterStatus').value.toLowerCase();
+        
+        const rows = document.querySelectorAll('.user-row');
+        rows.forEach(row => {
+            const rowName = row.dataset.name.toLowerCase();
+            const rowEmail = row.dataset.email.toLowerCase();
+            const rowRole = row.dataset.role.toLowerCase();
+            const rowStatus = row.dataset.status.toLowerCase();
+            
+            const matchesName = !name || rowName.includes(name);
+            const matchesEmail = !email || rowEmail.includes(email);
+            const matchesRole = !role || rowRole === role;
+            const matchesStatus = !status || rowStatus === status;
+            
+            row.style.display = (matchesName && matchesEmail && matchesRole && matchesStatus) ? "" : "none";
+        });
+    }
+
+    document.getElementById('filterName').addEventListener('input', applyFilters);
+    document.getElementById('filterEmail').addEventListener('input', applyFilters);
+    document.getElementById('filterRole').addEventListener('change', applyFilters);
+    document.getElementById('filterStatus').addEventListener('change', applyFilters);
+
+    // --- MODAL CONTROL ---
+    function openModal() { modal.style.display = 'flex'; }
+    function closeModal() { 
+        modal.style.display = 'none';
+        document.getElementById('userForm').reset();
+        document.getElementById('userId').value = '';
+        document.querySelectorAll('.error-msg').forEach(el => el.innerText = '');
+    }
+
+    function prepareAddModal() {
+        document.getElementById('modalTitle').innerText = "Nuevo Usuario";
+        document.getElementById('btnSubmit').innerText = "Guardar Usuario";
+        document.getElementById('userId').value = '';
+        openModal();
+    }
+
+    function prepareEditModal(u) {
+        document.getElementById('modalTitle').innerText = "Editar Usuario";
+        document.getElementById('btnSubmit').innerText = "Actualizar Usuario";
+        document.getElementById('userId').value = u.id;
+        document.getElementsByName('name')[0].value = u.name || '';
+        document.getElementsByName('email')[0].value = u.email || '';
+        document.getElementsByName('phone')[0].value = u.phone || '';
+        document.getElementsByName('address')[0].value = u.address || '';
+        document.getElementsByName('role')[0].value = u.role || 'cliente';
+        document.getElementsByName('status')[0].value = u.status || 'activo';
+        document.getElementsByName('notes')[0].value = u.notes || '';
+        openModal();
+    }
+
+    // --- GUARDAR / ACTUALIZAR ---
+    document.getElementById('userForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = document.getElementById('btnSubmit');
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Procesando...";
+
+        const formData = new FormData(e.target);
+        const userData = {
+            name: formData.get('name'),
+            email: formData.get('email'),
+            phone: formData.get('phone') || undefined,
+            address: formData.get('address') || undefined,
+            role: formData.get('role'),
+            status: formData.get('status'),
+            notes: formData.get('notes') || undefined
+        };
+
+        const id = document.getElementById('userId').value;
+        const url = id ? `/owner/users/${id}` : '/owner/users';
+        const method = id ? 'PUT' : 'POST';
+
+        try {
+            const response = await fetch(url, { 
+                method, 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(id ? "Usuario actualizado" : "Usuario creado");
+                location.reload();
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.innerText = id ? "Actualizar Usuario" : "Guardar Usuario";
+                if (result.errors) {
+                    result.errors.forEach(err => {
+                        const errorEl = document.getElementById(`err-${err.path}`);
+                        if (errorEl) errorEl.innerText = err.message;
+                    });
+                } else { 
+                    alert("Error: " + result.error); 
+                }
+            }
+        } catch (err) { 
+            alert("Error de conexión"); 
+            submitBtn.disabled = false;
+        }
+    });
+
+    // --- ELIMINAR ---
+    async function confirmDelete(id, name) {
+        if (confirm(`¿Desactivar usuario "${name}"?`)) {
+            const res = await fetch(`/owner/users/${id}`, { method: 'DELETE' });
+            if (res.ok) location.reload();
+            else alert("Error al eliminar");
+        }
+    }
+</script>

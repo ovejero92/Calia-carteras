@@ -1,0 +1,610 @@
+<div class="panel-layout" style="display: flex;">
+    {{> sidebar }} 
+    <main class="panel-content" style="flex-grow: 1; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>💰 Gestión de Ventas</h2>
+            <button class="btn-add" onclick="prepareAddModal()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                + Nueva Venta
+            </button>
+        </div>
+
+        <!-- Estadísticas rápidas -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff;">
+                <h3 style="margin: 0; color: #666; font-size: 14px;">Total Ventas</h3>
+                <p style="margin: 5px 0 0; font-size: 24px; font-weight: bold; color: #007bff;">{{stats.totalSales}}</p>
+            </div>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745;">
+                <h3 style="margin: 0; color: #666; font-size: 14px;">Ingresos Totales</h3>
+                <p style="margin: 5px 0 0; font-size: 24px; font-weight: bold; color: #28a745;">${{stats.totalRevenue}}</p>
+            </div>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                <h3 style="margin: 0; color: #666; font-size: 14px;">Productos Vendidos</h3>
+                <p style="margin: 5px 0 0; font-size: 24px; font-weight: bold; color: #ffc107;">{{stats.totalItems}}</p>
+            </div>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #17a2b8;">
+                <h3 style="margin: 0; color: #666; font-size: 14px;">Promedio por Venta</h3>
+                <p style="margin: 5px 0 0; font-size: 24px; font-weight: bold; color: #17a2b8;">${{stats.averageSale}}</p>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div style="margin: 20px 0; display: flex; gap: 10px; background: #f9f9f9; padding: 15px; border-radius: 8px; align-items: center; border: 1px solid #ddd; flex-wrap: wrap;">
+            <input type="date" id="filterStartDate" placeholder="Fecha inicio" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            <input type="date" id="filterEndDate" placeholder="Fecha fin" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            <select id="filterStatus" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                <option value="">Todos los estados</option>
+                <option value="completada">Completada</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="cancelada">Cancelada</option>
+            </select>
+            <select id="filterPaymentMethod" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                <option value="">Todos los métodos</option>
+                <option value="efectivo">Efectivo</option>
+                <option value="transferencia">Transferencia</option>
+                <option value="tarjeta">Tarjeta</option>
+                <option value="otro">Otro</option>
+            </select>
+            <button onclick="applyFilters()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Filtrar
+            </button>
+            <button onclick="clearFilters()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Limpiar
+            </button>
+        </div>
+
+        <!-- Tabla de ventas -->
+        <div style="overflow-x: auto;">
+            <table border="1" style="width: 100%; border-collapse: collapse; margin-top: 20px; background: white; min-width: 800px;">
+                <thead>
+                    <tr style="background-color: #f4f4f4;">
+                        <th style="padding: 12px; text-align: left;">N° Venta</th>
+                        <th style="padding: 12px; text-align: left;">Cliente</th>
+                        <th style="padding: 12px; text-align: left;">Fecha</th>
+                        <th style="padding: 12px; text-align: center;">Productos</th>
+                        <th style="padding: 12px; text-align: right;">Total</th>
+                        <th style="padding: 12px; text-align: center;">Pago</th>
+                        <th style="padding: 12px; text-align: center;">Estado</th>
+                        <th style="padding: 12px; text-align: center;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="salesTableBody">
+                    {{#each sales}}
+                    <tr class="sale-row" 
+                        data-status="{{this.status}}" 
+                        data-payment="{{this.paymentMethod}}"
+                        data-date="{{this.createdAt}}">
+                        <td style="padding: 10px; font-weight: bold;">{{this.saleNumber}}</td>
+                        <td style="padding: 10px;">
+                            <div>{{this.userName}}</div>
+                            <small style="color: #666;">{{this.userEmail}}</small>
+                        </td>
+                        <td style="padding: 10px;">
+                            {{#if this.createdAt}}
+                            {{formatDate this.createdAt}}
+                            {{else}}
+                            -
+                            {{/if}}
+                        </td>
+                        <td style="padding: 10px; text-align: center;">{{this.items.length}} items</td>
+                        <td style="padding: 10px; text-align: right; font-weight: bold;">${{this.total}}</td>
+                        <td style="padding: 10px; text-align: center;">
+                            <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; background: #17a2b8; color: white;">
+                                {{this.paymentMethod}}
+                            </span>
+                        </td>
+                        <td style="padding: 10px; text-align: center;">
+                            <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; 
+                                background: {{#if (eq this.status 'completada')}}#28a745{{else if (eq this.status 'pendiente')}}#ffc107{{else}}#dc3545{{/if}}; 
+                                color: white;">
+                                {{this.status}}
+                            </span>
+                        </td>
+                        <td style="padding: 10px; text-align: center;">
+                            <button onclick="viewSaleDetails('{{this.id}}')" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin-right: 5px;">
+                                Ver
+                            </button>
+                            <button onclick="prepareEditModal('{{this.id}}')" style="background: #ffc107; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin-right: 5px;">
+                                Editar
+                            </button>
+                            <button style="color: white; background: #dc3545; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;" 
+                                    onclick="confirmDelete('{{this.id}}', '{{this.saleNumber}}')">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                    {{/each}}
+                    {{#unless sales.length}}
+                    <tr>
+                        <td colspan="8" style="padding: 20px; text-align: center; color: #999;">
+                            No hay ventas registradas
+                        </td>
+                    </tr>
+                    {{/unless}}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<!-- Modal de Venta -->
+<div id="saleModal" class="modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
+    <div class="modal-content" style="background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+            <h3 id="modalTitle">Nueva Venta</h3>
+            <button onclick="closeModal()" style="background:none; border:none; font-size:25px; cursor:pointer;">&times;</button>
+        </div>
+
+        <form id="saleForm">
+            <input type="hidden" id="saleId" name="saleId">
+            
+            <!-- Datos del Cliente -->
+            <h4 style="margin: 15px 0 10px; color: #555; border-bottom: 2px solid #eee; padding-bottom: 5px;">Datos del Cliente</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div>
+                    <label>Seleccionar Cliente (opcional)</label>
+                    <select id="selectUser" onchange="fillUserData()" class="full-width">
+                        <option value="">Nuevo cliente</option>
+                        {{#each users}}
+                        <option value='{{json this}}'>{{this.name}} - {{this.email}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div></div>
+                <div>
+                    <label>Nombre del Cliente *</label>
+                    <input type="text" id="userName" name="userName" required class="full-width">
+                    <span id="err-userName" class="error-msg" style="color:red; font-size:12px;"></span>
+                </div>
+                <div>
+                    <label>Email</label>
+                    <input type="email" id="userEmail" name="userEmail" class="full-width">
+                </div>
+                <div>
+                    <label>Teléfono</label>
+                    <input type="text" id="userPhone" name="userPhone" class="full-width">
+                </div>
+                <div>
+                    <input type="hidden" id="userId" name="userId">
+                </div>
+            </div>
+
+            <!-- Productos -->
+            <h4 style="margin: 15px 0 10px; color: #555; border-bottom: 2px solid #eee; padding-bottom: 5px;">Productos</h4>
+            <div id="itemsContainer"></div>
+            <button type="button" onclick="addItemRow()" style="margin: 10px 0; padding: 8px 15px; background: #17a2b8; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                + Agregar Producto
+            </button>
+
+            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold;">
+                    <span>Total:</span>
+                    <span id="totalAmount">$0</span>
+                </div>
+            </div>
+
+            <!-- Detalles de Pago -->
+            <h4 style="margin: 20px 0 10px; color: #555; border-bottom: 2px solid #eee; padding-bottom: 5px;">Detalles de Pago</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label>Método de Pago *</label>
+                    <select name="paymentMethod" required class="full-width">
+                        <option value="efectivo">Efectivo</option>
+                        <option value="transferencia">Transferencia</option>
+                        <option value="tarjeta">Tarjeta</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                    <span id="err-paymentMethod" class="error-msg" style="color:red; font-size:12px;"></span>
+                </div>
+                <div>
+                    <label>Estado *</label>
+                    <select name="status" required class="full-width">
+                        <option value="completada">Completada</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="cancelada">Cancelada</option>
+                    </select>
+                    <span id="err-status" class="error-msg" style="color:red; font-size:12px;"></span>
+                </div>
+                <div style="grid-column: 1 / -1;">
+                    <label>Notas</label>
+                    <textarea name="notes" rows="2" class="full-width"></textarea>
+                </div>
+            </div>
+
+            <button type="submit" id="btnSubmit" class="btn-submit">Guardar Venta</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal de Detalles de Venta -->
+<div id="detailsModal" class="modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1001;">
+    <div class="modal-content" style="background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+            <h3>Detalles de Venta</h3>
+            <button onclick="closeDetailsModal()" style="background:none; border:none; font-size:25px; cursor:pointer;">&times;</button>
+        </div>
+        <div id="saleDetailsContent"></div>
+    </div>
+</div>
+
+<style>
+    .full-width { width: 100%; box-sizing: border-box; margin-bottom: 5px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    .btn-submit { margin-top:20px; width:100%; padding:12px; background: #28a745; color:white; border:none; border-radius:5px; font-size: 16px; cursor: pointer; }
+    .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+    .error-msg { color: red; font-size: 12px; display: block; margin-top: 2px; }
+    .item-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 10px; margin-bottom: 10px; align-items: end; }
+</style>
+
+<script>
+    const products = {{{json products}}};
+    const modal = document.getElementById('saleModal');
+    const detailsModal = document.getElementById('detailsModal');
+    let itemCounter = 0;
+
+    // --- AGREGAR FILA DE PRODUCTO ---
+    function addItemRow(productId = '', productName = '', quantity = 1, price = 0) {
+        const container = document.getElementById('itemsContainer');
+        const row = document.createElement('div');
+        row.className = 'item-row';
+        row.id = `item-row-${itemCounter}`;
+        
+        const productOptions = products.map(p => 
+            `<option value="${p.id}" data-price="${p.price}" data-name="${p.name}" data-stock="${p.stock}" ${p.id === productId ? 'selected' : ''}>${p.name} (Stock: ${p.stock})</option>`
+        ).join('');
+
+        row.innerHTML = `
+            <select class="product-select" onchange="updateItemPrice(${itemCounter})" required>
+                <option value="">Seleccionar producto</option>
+                ${productOptions}
+            </select>
+            <input type="number" class="item-quantity" min="1" value="${quantity}" onchange="calculateTotal()" oninput="validateStock(${itemCounter})" required>
+            <input type="number" class="item-price" step="0.01" min="0" value="${price}" onchange="calculateTotal()" required>
+            <input type="text" class="item-subtotal" readonly value="0">
+            <button type="button" onclick="removeItemRow(${itemCounter})" style="background: #dc3545; color: white; border: none; padding: 8px; border-radius: 3px; cursor: pointer;">X</button>
+        `;
+        
+        container.appendChild(row);
+        itemCounter++;
+        calculateTotal();
+    }
+
+    function updateItemPrice(index) {
+        const row = document.getElementById(`item-row-${index}`);
+        const select = row.querySelector('.product-select');
+        const priceInput = row.querySelector('.item-price');
+        const quantityInput = row.querySelector('.item-quantity');
+        
+        const selectedOption = select.options[select.selectedIndex];
+        if (selectedOption.value) {
+            priceInput.value = selectedOption.dataset.price;
+            quantityInput.max = selectedOption.dataset.stock;
+            calculateTotal();
+        }
+    }
+
+    function validateStock(index) {
+        const row = document.getElementById(`item-row-${index}`);
+        const select = row.querySelector('.product-select');
+        const quantityInput = row.querySelector('.item-quantity');
+        
+        const selectedOption = select.options[select.selectedIndex];
+        if (selectedOption.value) {
+            const stock = parseInt(selectedOption.dataset.stock);
+            const quantity = parseInt(quantityInput.value);
+            if (quantity > stock) {
+                alert(`Stock insuficiente. Disponible: ${stock}`);
+                quantityInput.value = stock;
+            }
+            calculateTotal();
+        }
+    }
+
+    function removeItemRow(index) {
+        const row = document.getElementById(`item-row-${index}`);
+        row.remove();
+        calculateTotal();
+    }
+
+    function calculateTotal() {
+        const rows = document.querySelectorAll('.item-row');
+        let total = 0;
+        
+        rows.forEach(row => {
+            const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+            const price = parseFloat(row.querySelector('.item-price').value) || 0;
+            const subtotal = quantity * price;
+            row.querySelector('.item-subtotal').value = subtotal.toFixed(2);
+            total += subtotal;
+        });
+        
+        document.getElementById('totalAmount').textContent = `$${total.toFixed(2)}`;
+    }
+
+    function fillUserData() {
+        const select = document.getElementById('selectUser');
+        if (select.value) {
+            const user = JSON.parse(select.value);
+            document.getElementById('userName').value = user.name;
+            document.getElementById('userEmail').value = user.email || '';
+            document.getElementById('userPhone').value = user.phone || '';
+            document.getElementById('userId').value = user.id;
+        } else {
+            document.getElementById('userName').value = '';
+            document.getElementById('userEmail').value = '';
+            document.getElementById('userPhone').value = '';
+            document.getElementById('userId').value = '';
+        }
+    }
+
+    // --- FILTROS ---
+    function applyFilters() {
+        const params = new URLSearchParams();
+        if (document.getElementById('filterStartDate').value) {
+            params.append('startDate', document.getElementById('filterStartDate').value);
+        }
+        if (document.getElementById('filterEndDate').value) {
+            params.append('endDate', document.getElementById('filterEndDate').value);
+        }
+        if (document.getElementById('filterStatus').value) {
+            params.append('status', document.getElementById('filterStatus').value);
+        }
+        if (document.getElementById('filterPaymentMethod').value) {
+            params.append('paymentMethod', document.getElementById('filterPaymentMethod').value);
+        }
+        window.location.href = `/owner/sales?${params.toString()}`;
+    }
+
+    function clearFilters() {
+        window.location.href = '/owner/sales';
+    }
+
+    // --- MODAL CONTROL ---
+    function openModal() { modal.style.display = 'flex'; }
+    function closeModal() { 
+        modal.style.display = 'none';
+        document.getElementById('saleForm').reset();
+        document.getElementById('saleId').value = '';
+        document.getElementById('itemsContainer').innerHTML = '';
+        itemCounter = 0;
+        document.getElementById('totalAmount').textContent = '$0';
+        document.querySelectorAll('.error-msg').forEach(el => el.innerText = '');
+    }
+
+    function prepareAddModal() {
+        document.getElementById('modalTitle').innerText = "Nueva Venta";
+        document.getElementById('btnSubmit').innerText = "Guardar Venta";
+        document.getElementById('saleId').value = '';
+        
+        // Habilitar campos de cliente
+        document.getElementById('userName').readOnly = false;
+        document.getElementById('userEmail').readOnly = false;
+        document.getElementById('userPhone').readOnly = false;
+        document.getElementById('selectUser').style.display = 'block';
+        
+        // Limpiar formulario
+        document.getElementById('saleForm').reset();
+        document.getElementById('itemsContainer').innerHTML = '';
+        document.getElementById('totalAmount').textContent = '$0.00';
+        
+        // Mostrar botón de agregar producto
+        const addBtn = document.querySelector('button[onclick="addItemRow()"]');
+        if (addBtn) addBtn.style.display = 'block';
+        
+        itemCounter = 0;
+        addItemRow();
+        openModal();
+    }
+
+    async function prepareEditModal(saleId) {
+        try {
+            const res = await fetch(`/owner/sales/${saleId}`);
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.error);
+            
+            const sale = result.data;
+            document.getElementById('modalTitle').innerText = `Editar Venta ${sale.saleNumber}`;
+            document.getElementById('btnSubmit').innerText = "Actualizar Venta";
+            document.getElementById('saleId').value = sale.id;
+            
+            // Mostrar datos del cliente como solo lectura
+            document.getElementById('userName').value = sale.userName;
+            document.getElementById('userName').readOnly = true;
+            document.getElementById('userEmail').value = sale.userEmail || '';
+            document.getElementById('userEmail').readOnly = true;
+            document.getElementById('userPhone').value = sale.userPhone || '';
+            document.getElementById('userPhone').readOnly = true;
+            document.getElementById('userId').value = sale.userId || '';
+            document.getElementById('selectUser').style.display = 'none';
+            
+            // Mostrar items como solo lectura
+            document.getElementById('itemsContainer').innerHTML = '';
+            sale.items.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'item-row';
+                row.innerHTML = `
+                    <input type="text" value="${item.productName}" readonly style="grid-column: 1 / -1; background: #f8f9fa;">
+                    <div style="grid-column: 1 / 3; padding: 8px; background: #f8f9fa; border-radius: 4px;">
+                        <strong>Cantidad:</strong> ${item.quantity} | <strong>Precio:</strong> $${item.price} | <strong>Subtotal:</strong> $${item.subtotal}
+                    </div>
+                `;
+                document.getElementById('itemsContainer').appendChild(row);
+            });
+            
+            // Mostrar total
+            document.getElementById('totalAmount').textContent = `$${sale.total.toFixed(2)}`;
+            document.getElementById('totalAmount').parentElement.style.display = 'block';
+            
+            // Campos editables
+            document.getElementsByName('paymentMethod')[0].value = sale.paymentMethod;
+            document.getElementsByName('status')[0].value = sale.status;
+            document.getElementsByName('notes')[0].value = sale.notes || '';
+            
+            // Ocultar botón de agregar producto
+            const addBtn = document.querySelector('button[onclick="addItemRow()"]');
+            if (addBtn) addBtn.style.display = 'none';
+            
+            openModal();
+        } catch (err) {
+            alert('Error al cargar la venta: ' + err.message);
+        }
+    }
+
+    async function viewSaleDetails(saleId) {
+        try {
+            const res = await fetch(`/owner/sales/${saleId}`);
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.error);
+            
+            const sale = result.data;
+            const itemsHtml = sale.items.map(item => `
+                <tr>
+                    <td>${item.productName}</td>
+                    <td style="text-align: center;">${item.quantity}</td>
+                    <td style="text-align: right;">$${item.price}</td>
+                    <td style="text-align: right;">$${item.subtotal}</td>
+                </tr>
+            `).join('');
+            
+            document.getElementById('saleDetailsContent').innerHTML = `
+                <div>
+                    <p><strong>N° Venta:</strong> ${sale.saleNumber}</p>
+                    <p><strong>Cliente:</strong> ${sale.userName}</p>
+                    <p><strong>Email:</strong> ${sale.userEmail || '-'}</p>
+                    <p><strong>Teléfono:</strong> ${sale.userPhone || '-'}</p>
+                    <p><strong>Fecha:</strong> ${new Date(sale.createdAt).toLocaleString()}</p>
+                    <p><strong>Estado:</strong> ${sale.status}</p>
+                    <p><strong>Método de Pago:</strong> ${sale.paymentMethod}</p>
+                    <hr style="margin: 15px 0;">
+                    <h4>Productos:</h4>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f4f4f4;">
+                                <th style="padding: 8px; text-align: left;">Producto</th>
+                                <th style="padding: 8px; text-align: center;">Cantidad</th>
+                                <th style="padding: 8px; text-align: right;">Precio</th>
+                                <th style="padding: 8px; text-align: right;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" style="text-align: right; font-weight: bold; padding: 8px;">Total:</td>
+                                <td style="text-align: right; font-weight: bold; padding: 8px;">$${sale.total}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    ${sale.notes ? `<p style="margin-top: 15px;"><strong>Notas:</strong> ${sale.notes}</p>` : ''}
+                </div>
+            `;
+            detailsModal.style.display = 'flex';
+        } catch (err) {
+            alert('Error al cargar detalles: ' + err.message);
+        }
+    }
+
+    function closeDetailsModal() {
+        detailsModal.style.display = 'none';
+    }
+
+    // --- GUARDAR / ACTUALIZAR VENTA ---
+    document.getElementById('saleForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = document.getElementById('btnSubmit');
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Procesando...";
+
+        // Recolectar items
+        const items = [];
+        const rows = document.querySelectorAll('.item-row');
+        rows.forEach(row => {
+            const select = row.querySelector('.product-select');
+            const quantity = parseFloat(row.querySelector('.item-quantity').value);
+            const price = parseFloat(row.querySelector('.item-price').value);
+            const selectedOption = select.options[select.selectedIndex];
+            
+            if (selectedOption.value) {
+                items.push({
+                    productId: selectedOption.value,
+                    productName: selectedOption.dataset.name,
+                    quantity: quantity,
+                    price: price,
+                    subtotal: quantity * price
+                });
+            }
+        });
+
+        const id = document.getElementById('saleId').value;
+        
+        // Solo validar items si es una nueva venta
+        if (!id && items.length === 0) {
+            alert('Debe agregar al menos un producto');
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Guardar Venta";
+            return;
+        }
+
+        const total = items.reduce((sum, item) => sum + item.subtotal, 0);
+        const formData = new FormData(e.target);
+        
+        const id = document.getElementById('saleId').value;
+        
+        // Si es edición, solo enviar campos editables
+        const saleData = id ? {
+            status: formData.get('status'),
+            paymentMethod: formData.get('paymentMethod'),
+            notes: formData.get('notes') || undefined
+        } : {
+            userId: formData.get('userId') || undefined,
+            userName: formData.get('userName'),
+            userEmail: formData.get('userEmail') || undefined,
+            userPhone: formData.get('userPhone') || undefined,
+            items: items,
+            total: total,
+            paymentMethod: formData.get('paymentMethod'),
+            status: formData.get('status'),
+            notes: formData.get('notes') || undefined
+        };
+
+        const url = id ? `/owner/sales/${id}` : '/owner/sales';
+        const method = id ? 'PUT' : 'POST';
+
+        try {
+            const response = await fetch(url, { 
+                method, 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(saleData)
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(id ? "Venta actualizada" : "Venta creada");
+                location.reload();
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.innerText = id ? "Actualizar Venta" : "Guardar Venta";
+                if (result.errors) {
+                    result.errors.forEach(err => {
+                        const errorEl = document.getElementById(`err-${err.path}`);
+                        if (errorEl) errorEl.innerText = err.message;
+                    });
+                } else { 
+                    alert("Error: " + result.error); 
+                }
+            }
+        } catch (err) { 
+            alert("Error de conexión: " + err.message); 
+            submitBtn.disabled = false;
+        }
+    });
+
+    // --- ELIMINAR VENTA ---
+    async function confirmDelete(id, saleNumber) {
+        if (confirm(`¿Eliminar venta "${saleNumber}"?`)) {
+            const res = await fetch(`/owner/sales/${id}`, { method: 'DELETE' });
+            if (res.ok) location.reload();
+            else alert("Error al eliminar");
+        }
+    }
+</script>

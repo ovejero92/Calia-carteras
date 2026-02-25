@@ -1,0 +1,321 @@
+<div class="panel-layout" style="display: flex;">
+    {{> sidebar }} 
+    <main class="panel-content" style="flex-grow: 1; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>📦 Gestión de Productos</h2>
+        </div>
+
+        <div style="margin: 20px 0; display: flex; gap: 10px; background: #f9f9f9; padding: 15px; border-radius: 8px; align-items: center; border: 1px solid #ddd;">
+            <input type="text" id="filterName" placeholder="🔍 Buscar por nombre..." style="flex-grow: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            
+            <select id="filterCategory" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                <option value="">Todas las categorías</option>
+                <option value="cartera">Carteras</option>
+                <option value="accesorio">Accesorios</option>
+                </select>
+
+            <button class="btn-add" onclick="prepareAddModal()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                + Agregar Producto
+            </button>
+        </div>
+        
+        <table border="1" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr style="background-color: #f4f4f4;">
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="productTableBody">
+                {{#each products}}
+                <tr class="product-row" data-name="{{this.name}}" data-category="{{this.category}}">
+                    <td style="text-align: center;">
+                        <img src="{{this.image}}" alt="{{this.name}}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                    </td>
+                    <td>{{this.name}}</td>
+                    <td style="text-align: center; text-transform: capitalize;">{{this.category}}</td>
+                    <td style="text-align: center;">${{this.price}}</td>
+                    <td style="text-align: center;">{{this.stock}}</td>
+                    <td style="text-align: center;">
+                        <button onclick="prepareEditModal({
+                            id: '{{this.id}}',
+                            name: '{{this.name}}',
+                            category: '{{this.category}}',
+                            price: '{{this.price}}',
+                            stock: '{{this.stock}}',
+                            characteristics: '{{#if this.characteristics}}{{json this.characteristics}}{{else}}{}{{/if}}'
+                        })" style="background: #ffc107; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Editar</button>
+                        
+                        <button style="color: white; background: #dc3545; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;" 
+                                onclick="confirmDelete('{{this.id}}', '{{this.name}}')">Eliminar</button>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </main>
+</div>
+
+<div id="productModal" class="modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
+    <div class="modal-content" style="background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+            <h3 id="modalTitle">Nuevo Producto</h3>
+            <button onclick="closeModal()" style="background:none; border:none; font-size:25px; cursor:pointer;">&times;</button>
+        </div>
+
+        <div id="tabContainer" class="tabs" style="margin-bottom: 20px; border-bottom: 1px solid #ddd;">
+            <button class="tab-btn active" onclick="switchTab('individual')">Carga Individual</button>
+            <button class="tab-btn" id="btnTabMasivo" onclick="switchTab('masivo')">Carga Masiva (JSON)</button>
+        </div>
+
+        <form id="formIndividual" enctype="multipart/form-data">
+            <input type="hidden" id="productId" name="productId">
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div style="grid-column: 1 / -1;"><h4>Datos Básicos</h4></div>
+                <div>
+                    <label>Nombre:</label>
+                    <input type="text" name="name" required class="full-width">
+                    <span id="err-name" class="error-msg" style="color:red; font-size:12px;"></span>
+                </div>
+                <div>
+                    <label>Categoría:</label>
+                    <input type="text" name="category" placeholder="ej: cartera" required class="full-width">
+                    <span id="err-category" class="error-msg" style="color:red; font-size:12px;"></span>
+                </div>
+                <div>
+                    <label>Precio:</label>
+                    <input type="number" name="price" required class="full-width">
+                    <span id="err-price" class="error-msg" style="color:red; font-size:12px;"></span>
+                </div>
+                <div>
+                    <label>Stock:</label>
+                    <input type="number" name="stock" required class="full-width">
+                    <span id="err-stock" class="error-msg" style="color:red; font-size:12px;"></span>
+                </div>
+                <div style="grid-column: 1 / -1;">
+                    <label>Foto:</label>
+                    <p id="currentImgLabel" style="font-size: 12px; color: #666; display: none;">(Dejar vacío para mantener la foto actual)</p>
+                    <input type="file" name="image" accept="image/*">
+                </div>
+
+                <div style="grid-column: 1 / -1; margin-top: 10px;"><h4>Características Físicas</h4></div>
+                <div><input type="text" id="char_marca" placeholder="Marca (ej: Amphora)" class="full-width"></div>
+                <div><input type="text" id="char_color" placeholder="Color (ej: Negro)" class="full-width"></div>
+                <div><input type="text" id="char_ancho" placeholder="Ancho (ej: 27 cm)" class="full-width"></div>
+                <div><input type="text" id="char_alto" placeholder="Alto (ej: 18 cm)" class="full-width"></div>
+                <div><input type="text" id="char_genero" placeholder="Género (ej: Mujer)" class="full-width"></div>
+                <div><input type="text" id="char_tipo" placeholder="Tipo (ej: Cartera)" class="full-width"></div>
+            </div>
+
+            <button type="submit" id="btnSubmit" class="btn-submit">Guardar Producto</button>
+        </form>
+
+        <form id="formMasivo" style="display:none;">
+            <p class="info-text">Pegá un array de objetos JSON para cargar múltiples productos.</p>
+            <textarea id="bulkData" rows="10" class="full-width code-font" placeholder='[{ "name": "...", "price": 100, ... }]'></textarea>
+            <button type="button" onclick="saveBulk()" class="btn-submit" style="background: #007bff;">Cargar Lista JSON</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .full-width { width: 100%; box-sizing: border-box; margin-bottom: 5px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    .btn-submit { margin-top:20px; width:100%; padding:12px; background: #28a745; color:white; border:none; border-radius:5px; font-size: 16px; cursor: pointer; }
+    .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+    .code-font { font-family: monospace; background: #f4f4f4; padding: 10px; }
+    .info-text { background: #e9ecef; padding: 10px; border-radius: 5px; font-size: 0.9em; margin-bottom: 10px;}
+    .tab-btn { padding: 10px 20px; cursor: pointer; border: none; background: none; }
+    .tab-btn.active { border-bottom: 2px solid #28a745; font-weight: bold; }
+    h4 { margin: 10px 0; color: #555; border-bottom: 2px solid #eee; padding-bottom: 5px; }
+</style>
+
+<script>
+    const modal = document.getElementById('productModal');
+    
+    // --- FILTROS ---
+    function applyFilters() {
+        const nameVal = document.getElementById('filterName').value.toLowerCase();
+        const catVal = document.getElementById('filterCategory').value.toLowerCase();
+        const rows = document.querySelectorAll('.product-row');
+
+        rows.forEach(row => {
+            const name = row.dataset.name.toLowerCase();
+            const category = row.dataset.category.toLowerCase();
+            const matchesName = name.includes(nameVal);
+            const matchesCat = catVal === "" || category === catVal;
+            row.style.display = (matchesName && matchesCat) ? "" : "none";
+        });
+    }
+
+    document.getElementById('filterName').addEventListener('input', applyFilters);
+    document.getElementById('filterCategory').addEventListener('change', applyFilters);
+
+    // --- MODAL CONTROL ---
+    function openModal() { modal.style.display = 'flex'; }
+    function closeModal() { 
+        modal.style.display = 'none';
+        document.getElementById('formIndividual').reset();
+        document.getElementById('productId').value = '';
+        document.querySelectorAll('.error-msg').forEach(el => el.innerText = '');
+    }
+
+    function switchTab(type) {
+        const individual = document.getElementById('formIndividual');
+        const masivo = document.getElementById('formMasivo');
+        const btns = document.querySelectorAll('.tab-btn');
+        if(type === 'individual') {
+            individual.style.display = 'block'; masivo.style.display = 'none';
+            btns[0].classList.add('active'); btns[1].classList.remove('active');
+        } else {
+            individual.style.display = 'none'; masivo.style.display = 'block';
+            btns[1].classList.add('active'); btns[0].classList.remove('active');
+        }
+    }
+
+    // --- PREPARAR MODAL PARA CREAR ---
+    function prepareAddModal() {
+        document.getElementById('modalTitle').innerText = "Nuevo Producto";
+        document.getElementById('btnSubmit').innerText = "Guardar Producto";
+        document.getElementById('productId').value = '';
+        document.getElementById('currentImgLabel').style.display = 'none';
+        document.getElementById('btnTabMasivo').style.display = 'inline-block';
+        openModal();
+    }
+
+    // --- PREPARAR MODAL PARA EDITAR ---
+    function prepareEditModal(p) {
+        document.getElementById('modalTitle').innerText = "Editar Producto";
+        document.getElementById('btnSubmit').innerText = "Actualizar Producto";
+        document.getElementById('btnTabMasivo').style.display = 'none'; // No carga masiva al editar
+        switchTab('individual');
+
+        // Llenar campos
+        document.getElementById('productId').value = p.id;
+        document.getElementsByName('name')[0].value = p.name;
+        document.getElementsByName('category')[0].value = p.category;
+        document.getElementsByName('price')[0].value = p.price;
+        document.getElementsByName('stock')[0].value = p.stock;
+        document.getElementById('currentImgLabel').style.display = 'block';
+
+        // Llenar características (Parseamos el JSON que viene como string)
+        try {
+            const char = JSON.parse(p.characteristics);
+            document.getElementById('char_marca').value = char.Marca || '';
+            document.getElementById('char_color').value = char.Color || '';
+            document.getElementById('char_ancho').value = char.Ancho || '';
+            document.getElementById('char_alto').value = char.Alto || '';
+            document.getElementById('char_genero').value = char.Género || '';
+            document.getElementById('char_tipo').value = char.Tipo || '';
+        } catch(e) { console.error("Error parseando características", e); }
+
+        openModal();
+    }
+
+    // Seleccionamos los inputs
+    const inputNombre = document.getElementById('filterName');
+    const selectCategoria = document.getElementById('filterCategory');
+    
+    // Función que hace la magia
+    function applyFilters() {
+        const textoBusqueda = inputNombre.value.toLowerCase();
+        const categoriaSeleccionada = selectCategoria.value.toLowerCase();
+        
+        // Agarramos todas las filas que tengan la clase 'product-row'
+        const filas = document.querySelectorAll('.product-row');
+    
+        filas.forEach(fila => {
+            // Leemos los datos que guardamos en los data-attributes del HTML
+            const nombreProducto = fila.getAttribute('data-name').toLowerCase();
+            const categoriaProducto = fila.getAttribute('data-category').toLowerCase();
+    
+            // Verificamos si coincide el nombre y la categoría
+            const coincideNombre = nombreProducto.includes(textoBusqueda);
+            const coincideCategoria = categoriaSeleccionada === "" || categoriaProducto === categoriaSeleccionada;
+    
+            // Si coincide todo, mostramos la fila, sino la ocultamos
+            if (coincideNombre && coincideCategoria) {
+                fila.style.display = "";
+            } else {
+                fila.style.display = "none";
+            }
+        });
+    }
+    
+    // Escuchamos cuando el usuario escribe o cambia el select
+    inputNombre.addEventListener('input', applyFilters);
+    selectCategoria.addEventListener('change', applyFilters);
+
+    // --- GUARDAR / ACTUALIZAR ---
+    document.getElementById('formIndividual').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = document.getElementById('btnSubmit');
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Procesando...";
+
+        const formData = new FormData(e.target);
+        const characteristicsObj = {
+            Ancho: document.getElementById('char_ancho').value,
+            Alto: document.getElementById('char_alto').value,
+            Marca: document.getElementById('char_marca').value,
+            Color: document.getElementById('char_color').value,
+            Género: document.getElementById('char_genero').value,
+            Tipo: document.getElementById('char_tipo').value
+        };
+        formData.append('characteristics', JSON.stringify(characteristicsObj));
+
+        const id = document.getElementById('productId').value;
+        const url = id ? `/owner/products/${id}` : '/owner/products';
+        const method = id ? 'PUT' : 'POST'; // Necesitás crear la ruta PUT en el router
+
+        try {
+            const response = await fetch(url, { method, body: formData });
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(id ? "Producto actualizado" : "Producto creado");
+                location.reload();
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.innerText = id ? "Actualizar Producto" : "Guardar Producto";
+                if (result.errors) {
+                    result.errors.forEach(err => {
+                        const errorEl = document.getElementById(`err-${err.path}`);
+                        if (errorEl) errorEl.innerText = err.message;
+                    });
+                } else { alert("Error: " + result.error); }
+            }
+        } catch (err) { 
+            alert("Error de conexión"); 
+            submitBtn.disabled = false;
+        }
+    });
+
+    // --- ELIMINAR ---
+    async function confirmDelete(id, name) {
+        if (confirm(`¿Borrar "${name}"?`)) {
+            const res = await fetch(`/owner/products/${id}`, { method: 'DELETE' });
+            if (res.ok) location.reload();
+            else alert("Error al eliminar");
+        }
+    }
+
+    // --- MASIVO ---
+    async function saveBulk() {
+        const text = document.getElementById('bulkData').value;
+        try {
+            const products = JSON.parse(text);
+            const res = await fetch('/owner/products/bulk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ products })
+            });
+            if (res.ok) location.reload();
+            else alert("Error en carga masiva");
+        } catch (e) { alert("JSON Inválido"); }
+    }
+</script>
