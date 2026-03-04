@@ -1,10 +1,10 @@
 import { Router } from "express";
-// import * as productService from "../services/product.service.js"; // Firebase version
-import * as productService from "../services/product.service.mock.js"; // Mock version for testing
-// import * as userService from "../services/user.service.js"; // Firebase version
-import * as userService from "../services/user.service.mock.js"; // Mock version for testing
-// import * as saleService from "../services/sale.service.js"; // Firebase version
-import * as saleService from "../services/sale.service.mock.js"; // Mock version for testing
+import * as productService from "../services/product.service.js"; // Firebase version
+// import * as productService from "../services/product.service.mock.js"; // Mock version for testing
+import * as userService from "../services/user.service.js"; // Firebase version
+// import * as userService from "../services/user.service.mock.js"; // Mock version for testing
+import * as saleService from "../services/sale.service.js"; // Firebase version
+// import * as saleService from "../services/sale.service.mock.js"; // Mock version for testing
 import { userSchema } from "../schemas/user.schema.js";
 import { saleSchema } from "../schemas/sale.schema.js";
 

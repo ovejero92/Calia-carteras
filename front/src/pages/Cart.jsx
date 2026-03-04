@@ -38,7 +38,7 @@ const Cart = () => {
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => {
             const imageUrl = item.image
-              ? `http://localhost:3050${item.image}`
+              ? `http://localhost:3001${item.image}`
               : '/placeholder-product.svg';
 
             return (

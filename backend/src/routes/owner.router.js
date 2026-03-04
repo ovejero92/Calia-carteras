@@ -67,11 +67,11 @@ router.get('/', verifyFirebaseToken, renderDashboard);
 router.get('/stats', verifyFirebaseToken, getStats);
 
 // Rutas de Productos
-router.post('/products', upload.single('image'), verifyFirebaseToken, createProduct);
+router.post('/products', upload.array('images', 5), verifyFirebaseToken, createProduct);
 router.post('/products/bulk', verifyFirebaseToken, createBulkProducts);
 router.get('/products', verifyFirebaseToken, renderProducts);
 router.delete('/products/:id', verifyFirebaseToken, deleteProduct);
-router.put('/products/:id', upload.single('image'), verifyFirebaseToken, updateProduct);
+router.put('/products/:id', upload.array('images', 5), verifyFirebaseToken, updateProduct);
 
 // Rutas de Usuarios
 router.get('/users', verifyFirebaseToken, renderUsers);

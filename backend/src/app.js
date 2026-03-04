@@ -32,6 +32,9 @@ app.engine('handlebars', handlebars.engine({
         eq: function (a, b) {
             return a === b;
         },
+        gt: function (a, b) {
+            return a > b;
+        },
         formatDate: function (date) {
             if (!date) return '-';
             const d = new Date(date);
@@ -84,4 +87,4 @@ app.use((req,res) => {
 const PORT = process.env.PORT || 3001
 app.listen(PORT,()=>console.log(`http://localhost:${PORT}`))
 
-// export default app;
+//export default app;
