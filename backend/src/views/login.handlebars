@@ -1,13 +1,37 @@
-<div class="container">
-    <h1>Iniciar sesión - Panel de propietario</h1>
-    <form id="login-form">
-        <label>Email</label>
-        <input type="email" id="email" required />
-        <label>Password</label>
-        <input type="password" id="password" required />
-        <button type="submit">Entrar</button>
-    </form>
-    <div id="msg"></div>
+<div class="login-wrapper">
+    <div class="brand">
+        <div class="brand-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 8V6a4 4 0 0 1 8 0v2"/>
+                <rect x="3" y="8" width="18" height="13" rx="1.5"/>
+                <path d="M9 13a3 3 0 0 0 6 0"/>
+            </svg>
+        </div>
+        <h1>Calia</h1>
+        <p>Panel de administración</p>
+    </div>
+
+    <div class="login-card">
+        <p class="card-title">Acceso privado</p>
+        <form id="login-form">
+            <div class="field-group">
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" placeholder="tu@email.com" required autocomplete="email" />
+                <div class="field-line"></div>
+            </div>
+            <div class="field-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password" />
+                <div class="field-line"></div>
+            </div>
+            <button type="submit" class="btn-login" id="btn-submit">
+                <span id="btn-text">Ingresar</span>
+            </button>
+        </form>
+        <div id="msg"></div>
+    </div>
+
+    <p class="login-footer">Área restringida · Solo propietaria</p>
 </div>
 
 <script>
