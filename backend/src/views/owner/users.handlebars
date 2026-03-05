@@ -297,10 +297,10 @@
 
     // --- ELIMINAR ---
     async function confirmDelete(id, name) {
-        if (confirm(`¿Desactivar usuario "${name}"?`)) {
-            const res = await fetch(`/owner/users/${id}`, { method: 'DELETE' });
-            if (res.ok) location.reload();
-            else alert("Error al eliminar");
-        }
+    if (confirm(`¿Eliminar permanentemente a "${name}"? Esta acción no se puede deshacer.`)) {
+        const res = await fetch(`/owner/users/${id}`, { method: 'DELETE' });
+        if (res.ok) location.reload();
+        else alert("Error al eliminar");
     }
+}
 </script>

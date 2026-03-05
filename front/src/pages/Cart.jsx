@@ -37,10 +37,7 @@ const Cart = () => {
         {/* Lista de productos */}
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => {
-            const imageUrl = item.image
-              ? `http://localhost:3001${item.image}`
-              : '/placeholder-product.svg';
-
+            const imageUrl = item.image || '/placeholder-product.svg';
             return (
               <div key={item.id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                 <div className="flex space-x-4">

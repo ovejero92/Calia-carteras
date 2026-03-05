@@ -547,9 +547,7 @@
 
         const total = items.reduce((sum, item) => sum + item.subtotal, 0);
         const formData = new FormData(e.target);
-        
-        const id = document.getElementById('saleId').value;
-        
+                
         // Si es edición, solo enviar campos editables
         const saleData = id ? {
             status: formData.get('status'),

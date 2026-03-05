@@ -1,8 +1,5 @@
 import * as statsService from "../services/stats.service.js";
 
-/**
- * Renderizar dashboard con estadísticas
- */
 export const renderDashboard = async (req, res) => {
     try {
         const dashboardStats = await statsService.getDashboardStats();

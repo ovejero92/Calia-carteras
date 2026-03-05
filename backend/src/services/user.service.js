@@ -164,19 +164,14 @@ export const updateUser = async (id, userData) => {
  */
 export const deleteUser = async (id) => {
     try {
-        // En lugar de borrar físicamente, marcamos como inactivo
-        await db.collection('users').doc(id).update({
-            status: 'inactivo',
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        });
-        console.log("✅ Usuario desactivado:", id);
+        await db.collection('users').doc(id).delete();
+        console.log("✅ Usuario eliminado:", id);
         return true;
     } catch (error) {
         console.error("❌ Error en deleteUser service:", error);
         throw error;
     }
 };
-
 /**
  * Obtener estadísticas de usuarios
  */

@@ -1,44 +1,35 @@
 import { Router } from "express";
-import * as productService from "../services/product.service.js"; // Firebase version
-// import * as productService from "../services/product.service.mock.js"; // Mock version for testing
-import * as userService from "../services/user.service.js"; // Firebase version
-// import * as userService from "../services/user.service.mock.js"; // Mock version for testing
-import * as saleService from "../services/sale.service.js"; // Firebase version
-// import * as saleService from "../services/sale.service.mock.js"; // Mock version for testing
+import * as productService from "../services/product.service.js";
+import * as userService from "../services/user.service.js";
+import * as saleService from "../services/sale.service.js";
 import { userSchema } from "../schemas/user.schema.js";
 import { saleSchema } from "../schemas/sale.schema.js";
+import { sendNewOrderToOwner } from "../services/email.service.js"; // ✅ NUEVO
 
 const router = Router();
 
-// Ruta para obtener todos los productos (catálogo público)
 router.get('/products', async (req, res) => {
     try {
         const products = await productService.getProducts();
         res.json({ status: "success", data: products });
     } catch (error) {
-        console.error("Error obteniendo productos:", error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// Ruta para obtener un producto específico
 router.get('/products/:id', async (req, res) => {
     try {
         const product = await productService.getProductById(req.params.id);
-        if (!product) {
-            return res.status(404).json({ error: "Producto no encontrado" });
-        }
+        if (!product) return res.status(404).json({ error: "Producto no encontrado" });
         res.json({ status: "success", data: product });
     } catch (error) {
-        console.error("Error obteniendo producto:", error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// Ruta para registrar un nuevo usuario cliente
+// ✅ FIX 1: si el usuario ya existe, devolvemos 400 (no 500) para que el checkout lo ignore
 router.post('/register', async (req, res) => {
     try {
-        // Validar datos con Zod
         const result = userSchema.safeParse({
             ...req.body,
             role: 'cliente',
@@ -46,102 +37,85 @@ router.post('/register', async (req, res) => {
         });
 
         if (!result.success) {
-            const errorsList = result.error?.errors || [];
-            const errorMessages = errorsList.map(err => ({
+            const errorMessages = result.error.errors.map(err => ({
                 path: err.path[0],
                 message: err.message
             }));
             return res.status(400).json({ errors: errorMessages });
         }
 
-        // Crear usuario
-        const user = await userService.createUser(result.data);
+        // Si ya existe, devolvemos 400 con mensaje claro (el checkout lo ignora)
+        const existing = await userService.getUserByEmail(result.data.email);
+        if (existing) {
+            return res.status(400).json({ error: "Ya existe un usuario con ese email" });
+        }
 
-        res.status(201).json({
-            status: "success",
-            message: "Usuario registrado exitosamente",
-            data: user
-        });
+        const user = await userService.createUser(result.data);
+        res.status(201).json({ status: "success", message: "Usuario registrado", data: user });
     } catch (error) {
         console.error("Error registrando usuario:", error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// Ruta para crear una nueva venta (pedido)
+// ✅ FIX 2 + FIX 3: crear pedido y notificar a la propietaria
 router.post('/orders', async (req, res) => {
     try {
-        // Validar datos con Zod
         const result = saleSchema.safeParse({
             ...req.body,
-            status: 'pendiente' // Los pedidos comienzan como pendientes
+            status: 'pendiente'
         });
 
         if (!result.success) {
-            const errorsList = result.error?.errors || [];
-            const errorMessages = errorsList.map(err => ({
+            const errorMessages = result.error.errors.map(err => ({
                 path: err.path.join('.'),
                 message: err.message
             }));
             return res.status(400).json({ errors: errorMessages });
         }
 
-        // Crear la venta
         const order = await saleService.createSale(result.data);
 
-        res.status(201).json({
-            status: "success",
-            message: "Pedido creado exitosamente",
-            data: order
-        });
+        // ✅ Notificar a la propietaria con botones Aceptar/Rechazar
+        try {
+            await sendNewOrderToOwner(order);
+            console.log("📧 Email enviado a la propietaria");
+        } catch (emailError) {
+            console.error("⚠️ Error enviando email:", emailError.message);
+        }
+
+        res.status(201).json({ status: "success", message: "Pedido creado", data: order });
     } catch (error) {
         console.error("Error creando pedido:", error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// Ruta para obtener pedidos de un usuario (por email)
+// ✅ FIX 2: buscar pedidos por userEmail además de userId
 router.get('/orders', async (req, res) => {
     try {
         const { email } = req.query;
+        if (!email) return res.status(400).json({ error: "Email es requerido" });
 
-        if (!email) {
-            return res.status(400).json({ error: "Email es requerido" });
-        }
+        // Buscar directamente por userEmail en las ventas (no necesita usuario registrado)
+        const allOrders = await saleService.getSales({});
+        const orders = allOrders.filter(o =>
+            o.userEmail?.toLowerCase() === email.toLowerCase()
+        );
 
-        // Buscar usuario por email
-        const user = await userService.getUserByEmail(email);
-        if (!user) {
-            return res.status(404).json({ error: "Usuario no encontrado" });
-        }
-
-        // Obtener pedidos del usuario
-        const orders = await saleService.getSales({ userId: user.id });
-
-        res.json({
-            status: "success",
-            data: orders
-        });
+        res.json({ status: "success", data: orders });
     } catch (error) {
         console.error("Error obteniendo pedidos:", error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// Ruta para obtener un pedido específico por ID
 router.get('/orders/:id', async (req, res) => {
     try {
         const order = await saleService.getSaleById(req.params.id);
-        if (!order) {
-            return res.status(404).json({ error: "Pedido no encontrado" });
-        }
-
-        res.json({
-            status: "success",
-            data: order
-        });
+        if (!order) return res.status(404).json({ error: "Pedido no encontrado" });
+        res.json({ status: "success", data: order });
     } catch (error) {
-        console.error("Error obteniendo pedido:", error);
         res.status(500).json({ error: error.message });
     }
 });
