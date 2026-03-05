@@ -66,7 +66,15 @@ app.engine('handlebars', handlebars.engine({
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'handlebars')
 
-app.use(cors())
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://calia-carteras.vercel.app/', // ← tu dominio de Vercel (lo sabés después del deploy)
+        process.env.FRONTEND_URL            // ← variable de entorno para el futuro
+    ],
+    credentials: true
+}));
 
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 // app.use((req,res,next) => {res.json({msj:"en mantenimiento"})})
