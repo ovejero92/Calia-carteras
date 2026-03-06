@@ -67,12 +67,19 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'handlebars')
 
 app.use(cors({
-    origin: [
-        'http://localhost:5173',
-        'http://localhost:3000',
-        'https://calia-carteras.vercel.app/', // ← tu dominio de Vercel (lo sabés después del deploy)
-        process.env.FRONTEND_URL            // ← variable de entorno para el futuro
-    ],
+    origin: function(origin, callback) {
+        const allowed = [
+            'http://localhost:5173',
+            'http://localhost:3000',
+            'https://calia-carteras.vercel.app',
+            process.env.FRONTEND_URL
+        ];
+        if (!origin || allowed.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 
