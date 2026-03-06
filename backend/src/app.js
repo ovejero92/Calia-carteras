@@ -72,6 +72,7 @@ app.use(cors({
             'http://localhost:5173',
             'http://localhost:3000',
             'https://calia-carteras.vercel.app',
+            'https://calia-carteras-production.up.railway.app',
             process.env.FRONTEND_URL
         ];
         if (!origin || allowed.includes(origin)) {
