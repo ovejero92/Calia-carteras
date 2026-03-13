@@ -1,0 +1,172 @@
+<div class="panel-layout" style="display:flex;">
+    {{> sidebar}}
+    <main class="panel-content" style="flex-grow:1; padding:20px;">
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+            <div>
+                <h2 style="margin:0 0 4px;">🏷️ Categorías</h2>
+                <p style="margin:0; color:#666; font-size:14px;">Gestioná las categorías que aparecen en tu tienda. Estas se usan para organizar los productos y filtrar en el catálogo.</p>
+            </div>
+            <button onclick="openAddModal()" style="padding:10px 20px; background:#28a745; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">
+                + Nueva Categoría
+            </button>
+        </div>
+
+        {{#if categories }}
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px;">
+            {{#each categories}}
+            <div style="background:white; border:1px solid #e5e7eb; border-radius:10px; padding:20px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                <div>
+                    <div style="font-weight:600; font-size:16px; color:#1f2937; margin-bottom:4px;">{{this.name}}</div>
+                    <div style="font-size:12px; color:#9ca3af; font-family:monospace; background:#f3f4f6; padding:2px 8px; border-radius:4px; display:inline-block;">{{this.slug}}</div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button onclick="openEditModal('{{this.id}}', '{{this.name}}', '{{this.slug}}')"
+                        style="background:#fef3c7; border:1px solid #fbbf24; color:#92400e; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:500;">
+                        ✏️ Editar
+                    </button>
+                    <button onclick="confirmDelete('{{this.id}}', '{{this.name}}')"
+                        style="background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:500;">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+        {{else}}
+        <div style="text-align:center; padding:60px 20px; background:white; border-radius:12px; border:1px dashed #d1d5db;">
+            <div style="font-size:48px; margin-bottom:16px;">🏷️</div>
+            <p style="color:#6b7280; font-size:16px; margin-bottom:8px;">No hay categorías creadas todavía.</p>
+            <p style="color:#9ca3af; font-size:14px;">Hacé click en "+ Nueva Categoría" para empezar.</p>
+        </div>
+        {{/if}}
+
+        <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:16px 20px; margin-top:24px;">
+            <p style="margin:0; font-size:13px; color:#0c4a6e;">
+                💡 <strong>Tip:</strong> El <em>slug</em> es la versión URL de la categoría (ej: "Carteras de Cuero" → <code>carteras-de-cuero</code>). Se genera automáticamente pero podés editarlo.
+            </p>
+        </div>
+    </main>
+</div>
+
+<!-- Modal agregar/editar -->
+<div id="catModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000;">
+    <div style="background:white; border-radius:12px; padding:28px; width:90%; max-width:440px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 id="modalTitle" style="margin:0;">Nueva Categoría</h3>
+            <button onclick="closeModal()" style="background:none; border:none; font-size:22px; cursor:pointer; color:#6b7280;">&times;</button>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;">Nombre *</label>
+            <input id="catName" type="text" placeholder="ej: Carteras de Cuero" maxlength="60"
+                style="width:100%; box-sizing:border-box; padding:10px 12px; border:1.5px solid #d1d5db; border-radius:8px; font-size:14px;">
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;">Slug <span style="font-weight:400; color:#9ca3af;">(URL)</span></label>
+            <input id="catSlug" type="text" placeholder="carteras-de-cuero" maxlength="60"
+                style="width:100%; box-sizing:border-box; padding:10px 12px; border:1.5px solid #d1d5db; border-radius:8px; font-size:14px; font-family:monospace;">
+            <p style="font-size:11px; color:#9ca3af; margin:4px 0 0;">Se genera solo al escribir el nombre. Solo letras, números y guiones.</p>
+        </div>
+
+        <div id="catError" style="display:none; background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; padding:8px 12px; border-radius:6px; font-size:13px; margin-bottom:16px;"></div>
+
+        <div style="display:flex; gap:10px;">
+            <button onclick="closeModal()" style="flex:1; padding:10px; border:1.5px solid #d1d5db; background:white; border-radius:8px; cursor:pointer; font-size:14px;">Cancelar</button>
+            <button id="catSaveBtn" onclick="saveCategory()" style="flex:2; padding:10px; background:#28a745; color:white; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600;">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let editingId = null;
+
+    // Generar slug automáticamente
+    document.getElementById('catName').addEventListener('input', function() {
+        if (!editingId) { // Solo auto-generar en modo creación
+            const slug = this.value
+                .toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar acentos
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]/g, '')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+            document.getElementById('catSlug').value = slug;
+        }
+    });
+
+    function openAddModal() {
+        editingId = null;
+        document.getElementById('modalTitle').textContent = 'Nueva Categoría';
+        document.getElementById('catSaveBtn').textContent = 'Guardar';
+        document.getElementById('catName').value = '';
+        document.getElementById('catSlug').value = '';
+        document.getElementById('catError').style.display = 'none';
+        document.getElementById('catModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('catName').focus(), 100);
+    }
+
+    function openEditModal(id, name, slug) {
+        editingId = id;
+        document.getElementById('modalTitle').textContent = 'Editar Categoría';
+        document.getElementById('catSaveBtn').textContent = 'Actualizar';
+        document.getElementById('catName').value = name;
+        document.getElementById('catSlug').value = slug;
+        document.getElementById('catError').style.display = 'none';
+        document.getElementById('catModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('catName').focus(), 100);
+    }
+
+    function closeModal() {
+        document.getElementById('catModal').style.display = 'none';
+        editingId = null;
+    }
+
+    async function saveCategory() {
+        const name = document.getElementById('catName').value.trim();
+        const slug = document.getElementById('catSlug').value.trim();
+        const errEl = document.getElementById('catError');
+        const btn = document.getElementById('catSaveBtn');
+
+        if (!name) { showError('El nombre es requerido.'); return; }
+
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
+
+        try {
+            const url = editingId ? `/owner/categories/${editingId}` : '/owner/categories';
+            const method = editingId ? 'PUT' : 'POST';
+            const resp = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, slug })
+            });
+            const data = await resp.json();
+            if (!resp.ok) { showError(data.error || 'Error al guardar.'); btn.disabled = false; btn.textContent = editingId ? 'Actualizar' : 'Guardar'; return; }
+            location.reload();
+        } catch (e) {
+            showError('Error de conexión.');
+            btn.disabled = false;
+            btn.textContent = editingId ? 'Actualizar' : 'Guardar';
+        }
+    }
+
+    async function confirmDelete(id, name) {
+        if (!confirm(`¿Eliminar la categoría "${name}"?\n\nLos productos que la usen no se borran, pero quedarán sin categoría.`)) return;
+        try {
+            const resp = await fetch(`/owner/categories/${id}`, { method: 'DELETE' });
+            if (resp.ok) location.reload();
+            else { const d = await resp.json(); alert(d.error || 'Error al eliminar.'); }
+        } catch { alert('Error de conexión.'); }
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('catError');
+        el.textContent = msg;
+        el.style.display = 'block';
+    }
+
+    // Cerrar modal con Escape
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+</script>

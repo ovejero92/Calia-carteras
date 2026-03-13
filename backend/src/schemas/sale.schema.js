@@ -23,7 +23,9 @@ export const saleSchema = z.object({
         errorMap: () => ({ message: "Estado inválido" })
     }).default('pendiente'), // ✅ default pendiente (viene del front del cliente)
     estimatedDelivery: z.string().optional(), // ✅ horario estimado que pone la propietaria
-    notes: z.string().optional()
+    notes: z.string().optional(),
+    // Tipo de tarjeta para distinguir débito / crédito en estadísticas
+    cardType: z.enum(['debito', 'credito']).optional()
 });
 
 export const saleFilterSchema = z.object({

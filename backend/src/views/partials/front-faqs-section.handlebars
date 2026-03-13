@@ -1,0 +1,212 @@
+{{!-- ─────────────────────────────────────────────────────────────────────────
+  PARCHE para front.handlebars
+  Agregá este bloque dentro del <form> de diseño web, en la sección de colores.
+  También incluye la sección completa de gestión de FAQs al final de <main>.
+──────────────────────────────────────────────────────────────────────────── --}}
+
+
+{{!-- ═══ 1) COLORES DE BADGES — agregar dentro de la sección "Cards" del form ═══ --}}
+{{!--
+Agregá esto en el form principal, junto a los otros colores de card:
+
+<div style="grid-column:1/-1; margin-top:10px;">
+    <h4>🏷️ Colores de Etiquetas de Producto</h4>
+    <p style="font-size:12px; color:#9ca3af; margin:0 0 12px;">Estos colores se usan en los badges de "Nuevo", "Oferta" y "Más Vendido" en el catálogo.</p>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px;">
+        <div>
+            <label style="font-size:12px; font-weight:600; color:#555; display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                <span style="background:{{settings.colors.badgeNew}}; color:white; font-size:11px; padding:2px 8px; border-radius:4px;">NUEVO</span>
+            </label>
+            <input type="color" name="colorBadgeNew" value="{{settings.colors.badgeNew}}"
+                style="width:50px; height:38px; border:none; cursor:pointer; border-radius:6px; padding:2px;">
+            <input type="text" name="colorBadgeNew" value="{{settings.colors.badgeNew}}" maxlength="7"
+                style="width:90px; padding:8px; border:1px solid #ccc; border-radius:4px; font-family:monospace; font-size:12px; margin-left:6px;"
+                oninput="syncColor(this)">
+        </div>
+        <div>
+            <label style="font-size:12px; font-weight:600; color:#555; display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                <span style="background:{{settings.colors.badgeSale}}; color:white; font-size:11px; padding:2px 8px; border-radius:4px;">OFERTA</span>
+            </label>
+            <input type="color" name="colorBadgeSale" value="{{settings.colors.badgeSale}}"
+                style="width:50px; height:38px; border:none; cursor:pointer; border-radius:6px; padding:2px;">
+            <input type="text" name="colorBadgeSale" value="{{settings.colors.badgeSale}}" maxlength="7"
+                style="width:90px; padding:8px; border:1px solid #ccc; border-radius:4px; font-family:monospace; font-size:12px; margin-left:6px;"
+                oninput="syncColor(this)">
+        </div>
+        <div>
+            <label style="font-size:12px; font-weight:600; color:#555; display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                <span style="background:{{settings.colors.badgeBestSeller}}; color:white; font-size:11px; padding:2px 8px; border-radius:4px;">MÁS VENDIDO</span>
+            </label>
+            <input type="color" name="colorBadgeBestSeller" value="{{settings.colors.badgeBestSeller}}"
+                style="width:50px; height:38px; border:none; cursor:pointer; border-radius:6px; padding:2px;">
+            <input type="text" name="colorBadgeBestSeller" value="{{settings.colors.badgeBestSeller}}" maxlength="7"
+                style="width:90px; padding:8px; border:1px solid #ccc; border-radius:4px; font-family:monospace; font-size:12px; margin-left:6px;"
+                oninput="syncColor(this)">
+        </div>
+    </div>
+</div>
+--}}
+
+
+{{!-- ═══ 2) SECCIÓN COMPLETA DE FAQs — agregar DESPUÉS del </form> de diseño ═══ --}}
+
+<div style="background:white; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08); padding:28px; margin-top:30px;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+        <div>
+            <h2 style="margin:0 0 4px; font-size:20px; color:#1f2937;">❓ Preguntas Frecuentes</h2>
+            <p style="margin:0; font-size:13px; color:#9ca3af;">Estas preguntas se muestran en la página /faq de tu tienda.</p>
+        </div>
+        <button onclick="openAddFaq()"
+            style="padding:10px 18px; background:#1d4ed8; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px;">
+            + Nueva Pregunta
+        </button>
+    </div>
+
+    {{#if settings.faqs.length}}
+    <div id="faqList" style="display:flex; flex-direction:column; gap:10px;">
+        {{#each settings.faqs}}
+        <div style="border:1px solid #e5e7eb; border-radius:10px; padding:16px 20px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px;">
+            <div style="flex:1;">
+                <div style="font-weight:600; color:#1f2937; margin-bottom:4px;">{{this.question}}</div>
+                <div style="font-size:13px; color:#6b7280; line-height:1.5;">{{this.answer}}</div>
+            </div>
+            <div style="display:flex; gap:6px; flex-shrink:0;">
+                <button onclick="openEditFaq({{@index}}, {{json this}})"
+                    style="background:#fef3c7; border:1px solid #fbbf24; color:#92400e; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:12px;">
+                    ✏️ Editar
+                </button>
+                <button onclick="deleteFaq({{@index}})"
+                    style="background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:12px;">
+                    🗑️
+                </button>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    {{else}}
+    <div style="text-align:center; padding:40px 20px; border:1px dashed #e5e7eb; border-radius:10px; color:#9ca3af;">
+        <div style="font-size:36px; margin-bottom:8px;">💬</div>
+        <p style="margin:0;">Todavía no hay preguntas. Hacé click en "+ Nueva Pregunta" para agregar.</p>
+    </div>
+    {{/if}}
+</div>
+
+<!-- Modal FAQ -->
+<div id="faqModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000;">
+    <div style="background:white; border-radius:14px; padding:28px; width:90%; max-width:520px; box-shadow:0 20px 60px rgba(0,0,0,0.18);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 id="faqModalTitle" style="margin:0; color:#1f2937;">Nueva Pregunta</h3>
+            <button onclick="closeFaqModal()" style="background:none; border:none; font-size:22px; cursor:pointer; color:#6b7280;">&times;</button>
+        </div>
+
+        <div style="margin-bottom:14px;">
+            <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;">Pregunta *</label>
+            <input id="faqQuestion" type="text" placeholder="ej: ¿Cuánto tarda el envío?" maxlength="200"
+                style="width:100%; box-sizing:border-box; padding:10px 12px; border:1.5px solid #d1d5db; border-radius:8px; font-size:14px;">
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;">Respuesta *</label>
+            <textarea id="faqAnswer" rows="4" placeholder="Escribí la respuesta..." maxlength="1000"
+                style="width:100%; box-sizing:border-box; padding:10px 12px; border:1.5px solid #d1d5db; border-radius:8px; font-size:14px; resize:vertical;"></textarea>
+        </div>
+
+        <div id="faqError" style="display:none; background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; padding:8px 12px; border-radius:6px; font-size:13px; margin-bottom:14px;"></div>
+
+        <div style="display:flex; gap:10px;">
+            <button onclick="closeFaqModal()" style="flex:1; padding:11px; border:1.5px solid #d1d5db; background:white; border-radius:8px; cursor:pointer; font-size:14px;">Cancelar</button>
+            <button id="faqSaveBtn" onclick="saveFaq()" style="flex:2; padding:11px; background:#1d4ed8; color:white; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600;">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let editingFaqIndex = null;
+
+    function openAddFaq() {
+        editingFaqIndex = null;
+        document.getElementById('faqModalTitle').textContent = 'Nueva Pregunta';
+        document.getElementById('faqSaveBtn').textContent = 'Guardar';
+        document.getElementById('faqQuestion').value = '';
+        document.getElementById('faqAnswer').value = '';
+        document.getElementById('faqError').style.display = 'none';
+        document.getElementById('faqModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('faqQuestion').focus(), 100);
+    }
+
+    function openEditFaq(index, faqData) {
+        editingFaqIndex = index;
+        document.getElementById('faqModalTitle').textContent = 'Editar Pregunta';
+        document.getElementById('faqSaveBtn').textContent = 'Actualizar';
+        document.getElementById('faqQuestion').value = faqData.question || '';
+        document.getElementById('faqAnswer').value = faqData.answer || '';
+        document.getElementById('faqError').style.display = 'none';
+        document.getElementById('faqModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('faqQuestion').focus(), 100);
+    }
+
+    function closeFaqModal() {
+        document.getElementById('faqModal').style.display = 'none';
+        editingFaqIndex = null;
+    }
+
+    async function saveFaq() {
+        const question = document.getElementById('faqQuestion').value.trim();
+        const answer   = document.getElementById('faqAnswer').value.trim();
+        const btn      = document.getElementById('faqSaveBtn');
+        const errEl    = document.getElementById('faqError');
+
+        if (!question || !answer) {
+            errEl.textContent = 'La pregunta y la respuesta son obligatorias.';
+            errEl.style.display = 'block';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
+        errEl.style.display = 'none';
+
+        try {
+            let url, method;
+            if (editingFaqIndex !== null) {
+                url = `/owner/front/faqs/${editingFaqIndex}`;
+                method = 'PUT';
+            } else {
+                url = '/owner/front/faqs';
+                method = 'POST';
+            }
+
+            const resp = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question, answer })
+            });
+            const data = await resp.json();
+            if (!resp.ok) {
+                errEl.textContent = data.error || 'Error al guardar.';
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = editingFaqIndex !== null ? 'Actualizar' : 'Guardar';
+                return;
+            }
+            location.reload();
+        } catch {
+            errEl.textContent = 'Error de conexión.';
+            errEl.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = editingFaqIndex !== null ? 'Actualizar' : 'Guardar';
+        }
+    }
+
+    async function deleteFaq(index) {
+        if (!confirm('¿Eliminar esta pregunta?')) return;
+        try {
+            const resp = await fetch(`/owner/front/faqs/${index}`, { method: 'DELETE' });
+            if (resp.ok) location.reload();
+            else alert('Error al eliminar.');
+        } catch { alert('Error de conexión.'); }
+    }
+
+    // Cerrar con Escape
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFaqModal(); });
+</script>

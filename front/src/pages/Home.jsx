@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
 import { ShoppingBagIcon, TruckIcon, ShieldCheckIcon, StarIcon } from '@heroicons/react/24/outline';
+import { useSettings } from '../context/SettingsContext';
 
 const Home = () => {
+  const settings = useSettings();
+
   const features = [
     {
       icon: ShoppingBagIcon,
@@ -25,20 +28,31 @@ const Home = () => {
     }
   ];
 
+  const heroStyle = settings?.images?.heroBanner
+    ? { backgroundImage: `url(${settings.images.heroBanner})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    : { backgroundColor: settings?.colors?.heroBackground || 'var(--color-hero-bg)' };
+
   return (
     <div>
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-20">
-        <div className="container mx-auto px-4 text-center">
+      <section
+        className="text-white py-20 relative"
+        style={heroStyle}
+      >
+        {/* Overlay si hay imagen para que se lea el texto */}
+        {settings?.images?.heroBanner && (
+          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+        )}
+        <div className="container mx-auto px-4 text-center relative z-10">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
             Carteras de Cuero Premium
           </h1>
-          <p className="text-xl md:text-2xl mb-8 text-primary-100">
+          <p className="text-xl md:text-2xl mb-8 text-white opacity-90">
             Descubre nuestra colección exclusiva de carteras diseñadas para durar
           </p>
           <Link
             to="/catalog"
-            className="inline-flex items-center px-8 py-4 bg-white text-primary-600 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center px-8 py-4 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
           >
             <ShoppingBagIcon className="w-5 h-5 mr-2" />
             Ver Catálogo

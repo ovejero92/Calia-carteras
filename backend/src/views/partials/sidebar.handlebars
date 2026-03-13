@@ -2,10 +2,11 @@
     <h3>🏪 Mi Tienda</h3>
     <ul>
         <li><a href="/owner">🏠 Inicio</a></li>
+        <li><a href="/owner/categories">📂 Categorías</a></li>
         <li><a href="/owner/products">📦 Productos</a></li>
         <li><a href="/owner/users">👥 Usuarios</a></li>
         <li><a href="/owner/sales">💰 Ventas</a></li>
-        <li><a href="/owner/sales">🌐 Front</a></li>
+        <li><a href="/owner/front">🎨 Diseño Web</a></li>
         <li><button id="logout" class="btn-danger">🚪 Cerrar Sesión</button></li>
     </ul>
 </nav>
@@ -13,6 +14,6 @@
 <script>
     document.getElementById('logout')?.addEventListener('click', async () => {
         const response = await fetch('/owner/logout', { method: 'POST' });
-        if(response.ok) window.location.href = '/owner/login';
+        if (response.ok) window.location.href = '/owner/login';
     });
 </script>

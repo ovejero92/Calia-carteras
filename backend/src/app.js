@@ -18,12 +18,12 @@ const __dirname = path.dirname(__filename);
 const app = express()
 app.use(express.json())
 app.use(cookieParser())
-app.use(express.static(path.join(__dirname, "public")));
 
 
 // Seteando la handlebar para nuestro proyecto
 app.engine('handlebars', handlebars.engine({
     defaultLayout: 'main',
+    layoutsDir: path.join(__dirname, 'views/layouts'),
     partialsDir: path.join(__dirname, 'views/partials'), // ESTA LÍNEA ES CLAVE
     helpers: {
         json: function (context) {
@@ -35,12 +35,15 @@ app.engine('handlebars', handlebars.engine({
         gt: function (a, b) {
             return a > b;
         },
+        gte: function (a, b) {
+            return a >= b;
+        },
         formatDate: function (date) {
             if (!date) return '-';
             const d = new Date(date);
-            return d.toLocaleDateString('es-AR', { 
-                year: 'numeric', 
-                month: '2-digit', 
+            return d.toLocaleDateString('es-AR', {
+                year: 'numeric',
+                month: '2-digit',
                 day: '2-digit',
                 hour: '2-digit',
                 minute: '2-digit'
@@ -67,10 +70,10 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'handlebars')
 
 app.use(cors({
-    origin: function(origin, callback) {
+    origin: function (origin, callback) {
         const allowed = [
             'http://localhost:5173',
-            'http://localhost:3000',
+            'http://localhost:3001',
             'https://calia-carteras.vercel.app',
             'https://calia-carteras-production.up.railway.app',
             process.env.FRONTEND_URL
@@ -83,24 +86,24 @@ app.use(cors({
     },
     credentials: true
 }));
-
-app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 // app.use((req,res,next) => {res.json({msj:"en mantenimiento"})})
 // app.use('/api-docs',swaggerUi.serve, swaggerUi.setup(swaggerSpec))
-app.use(['/users','/usuarios'],usersRouter)
+app.use(['/users', '/usuarios'], usersRouter)
 app.use('/owner', ownerRouter)
 app.use('/api', publicRouter) // Rutas públicas para el frontend
 // app.use(['/products','/productos'], productsRouter)
 
+app.use(express.static(path.join(__dirname, "public")));
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+
 app.get('/', (req, res) => res.redirect('/owner/login'));
 
-
-app.use((req,res) => {
-    res.status(404).json({error:"ruta no encontrada"})
+app.use((req, res) => {
+    res.status(404).json({ error: "ruta no encontrada" })
 })
 
 
-const PORT = process.env.PORT || 3001
-app.listen(PORT,()=>console.log(`http://localhost:${PORT}`))
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => console.log(`http://localhost:${PORT}`))
 
 //export default app;

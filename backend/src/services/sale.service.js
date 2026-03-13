@@ -315,7 +315,17 @@ export const getSaleStats = async (startDate = null, endDate = null) => {
         // Ventas por método de pago
         const paymentMethods = {};
         sales.forEach(sale => {
-            const method = sale.paymentMethod || 'otro';
+            let method = sale.paymentMethod || 'otro';
+
+            // Diferenciar tarjetas de débito / crédito cuando haya detalle
+            if (method === 'tarjeta' && sale.cardType) {
+                if (sale.cardType === 'debito') {
+                    method = 'tarjeta_debito';
+                } else if (sale.cardType === 'credito') {
+                    method = 'tarjeta_credito';
+                }
+            }
+
             if (!paymentMethods[method]) {
                 paymentMethods[method] = { count: 0, total: 0 };
             }

@@ -469,6 +469,327 @@ table tbody tr:last-child td {
   color: rgba(180, 140, 90, 0.3);
   text-transform: uppercase;
 }
+/* Header de la página */
+.design-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.design-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.design-header p {
+    font-size: 0.9rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+/* Card contenedora del form */
+.design-card {
+    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+    padding: 32px;
+}
+
+/* Bloques de sección */
+.section-block {
+    padding-bottom: 28px;
+    margin-bottom: 28px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.section-block:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.01em;
+}
+
+.section-hint {
+    font-size: 0.82rem;
+    color: #ffffff;
+    margin: 0 0 18px 0;
+}
+
+.section-hint code {
+    background: #f3f4f6;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+/* Grid de colores — 3 columnas */
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.color-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.color-field label {
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+}
+
+.color-field label span {
+    font-weight: 400;
+    color: #9ca3af;
+}
+
+/* Grupo picker + hex + dot */
+.color-input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.color-picker {
+    width: 44px;
+    height: 44px;
+    padding: 3px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    background: none;
+    flex-shrink: 0;
+    transition: border-color 0.2s;
+}
+
+.color-picker:hover {
+    border-color: #9ca3af;
+}
+
+.hex-input {
+    font-family: 'Courier New', monospace;
+    font-size: 0.88rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    width: 105px;
+    padding: 8px 10px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    color: #374151;
+    background: #fafafa;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    margin-bottom: 0;
+}
+
+.hex-input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    background: #fff;
+}
+
+.color-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #e5e7eb;
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.15s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    display: inline-block;
+}
+
+.color-dot:hover {
+    transform: scale(1.1);
+}
+
+/* Layout tipografía: select a la izq, preview a la der */
+.font-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.field-label {
+    display: block;
+    font-size: 0.83rem;
+    font-weight: 600;
+    /* color: #374151; */
+    color: #ffffff;
+    margin-bottom: 8px;
+}
+
+.field-label span {
+    font-weight: 400;
+    color: #9ca3af;
+}
+
+.font-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #374151;
+    background: #fafafa;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: auto;
+    margin-bottom: 0;
+}
+
+.font-select:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    background: #fff;
+}
+
+/* Preview de fuente */
+.font-preview-box {
+    background: #f9fafb;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 18px 22px;
+    min-height: 90px;
+}
+
+.font-preview-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #fa00ed;
+    margin-bottom: 8px;
+    font-family: 'Inter', sans-serif;
+}
+
+.font-preview-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+    line-height: 1.35;
+    transition: font-family 0.2s ease;
+}
+
+.font-preview-sub {
+    font-size: 0.78rem;
+    color: #9ca3af;
+    margin-top: 5px;
+    transition: font-family 0.2s ease;
+}
+
+/* Upload field */
+.upload-field {
+    margin-top: 20px;
+}
+
+.file-input {
+    display: block;
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px dashed #d1d5db;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    color: #6b7280;
+    background: #fafafa;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    margin-bottom: 0;
+}
+
+.file-input:hover {
+    border-color: #6366f1;
+    background: #f5f3ff;
+}
+
+.current-image-note {
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+
+.current-image-note a {
+    color: #6366f1;
+    text-decoration: none;
+}
+
+.current-image-note a:hover {
+    text-decoration: underline;
+}
+
+/* Footer del form con botón */
+.form-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 24px;
+    border-top: 1px solid #f3f4f6;
+    margin-top: 8px;
+}
+
+.btn-save {
+    background: #2c3e50;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 28px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 2px 6px rgba(44,62,80,0.2);
+}
+
+.btn-save:hover {
+    background: #1a252f;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(44,62,80,0.3);
+}
+
+.btn-save:active {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .color-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .color-grid {
+        grid-template-columns: 1fr;
+    }
+    .font-layout {
+        grid-template-columns: 1fr;
+    }
+    .design-card {
+        padding: 20px;
+    }
+}
+
+
+
+
+
+
 
 /* Responsive */
 @media (max-width: 768px) {
