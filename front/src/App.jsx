@@ -3,6 +3,7 @@ import { CartProvider } from "./context/CartContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
+import CartDrawer from "./components/CartDrawer";
 import Catalog from "./pages/Catalog";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
@@ -35,6 +36,7 @@ function App() {
                 <Route path="/order-tracking" element={<OrderTracking />} />
                 <Route path="/faq" element={<FAQ />} />
               </Routes>
+              <CartDrawer />
             </main>
             <Footer />
           </div>

@@ -69,7 +69,12 @@
                 <tbody>
                     {{#each sales}}
                     <tr>
-                        <td style="padding:10px; font-weight:bold;">{{this.saleNumber}}</td>
+                        <td style="padding:10px; font-weight:bold;">
+                            {{this.saleNumber}}
+                            {{#unless this.isRead}}
+                            <span class="badge-nuevo" style="background:#dc3545; color:white; font-size:10px; padding:2px 5px; border-radius:10px; margin-left:4px; vertical-align:top;">NUEVO</span>
+                            {{/unless}}
+                        </td>
                         <td style="padding:10px;">
                             <div>{{this.userName}}</div>
                             <small style="color:#666;">{{this.userEmail}}</small>
@@ -93,7 +98,7 @@
                                 color:white;">{{this.status}}</span>
                         </td>
                         <td style="padding:10px; text-align:center;">
-                            <button onclick="viewSaleDetails('{{this.id}}')" style="background:#007bff; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; margin-right:4px;">Ver</button>
+                            <button onclick="viewSaleDetails('{{this.id}}', this)" style="background:#007bff; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; margin-right:4px;">Ver</button>
                             <button onclick="prepareEditModal('{{this.id}}')" style="background:#ffc107; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; margin-right:4px;">Editar</button>
                             <button style="color:white; background:#dc3545; border:none; padding:5px 10px; border-radius:3px; cursor:pointer;"
                                     onclick="confirmDelete('{{this.id}}', '{{this.saleNumber}}')">Eliminar</button>
@@ -444,7 +449,7 @@
         } catch (err) { alert('Error al cargar la venta: ' + err.message); }
     }
 
-    async function viewSaleDetails(saleId) {
+    async function viewSaleDetails(saleId, btnElement) {
         try {
             const res    = await fetch(`/owner/sales/${saleId}`);
             const result = await res.json();
@@ -465,6 +470,7 @@
                 <p><strong>Cliente:</strong> ${sale.userName}</p>
                 <p><strong>Email:</strong> ${sale.userEmail || '-'}</p>
                 <p><strong>Teléfono:</strong> ${sale.userPhone || '-'}</p>
+                <p><strong>Dirección/Entrega:</strong> ${sale.userAddress || '-'}</p>
                 <p><strong>Fecha:</strong> ${new Date(sale.createdAt).toLocaleString()}</p>
                 <p><strong>Estado:</strong> ${sale.status}</p>
                 <p><strong>Método de Pago:</strong> ${PAYMENT_LABELS[sale.paymentMethod] || sale.paymentMethod}</p>
@@ -486,6 +492,20 @@
                 ${sale.notes ? `<p style="margin-top:15px;"><strong>Notas:</strong> ${sale.notes}</p>` : ''}
             `;
             document.getElementById('detailsModal').style.display = 'flex';
+
+            // Marcar como leído si tiene el badge de "NUEVO"
+            if (btnElement) {
+                const tr = btnElement.closest('tr');
+                const badge = tr.querySelector('.badge-nuevo');
+                if (badge) {
+                    badge.remove();
+                    await fetch('/owner/sales/' + saleId + '/read', { method: 'POST' });
+                    // Intentar actualizar el contador del sidebar si la función existe
+                    if (window.updateUnreadBadge) {
+                        window.updateUnreadBadge();
+                    }
+                }
+            }
         } catch (err) { alert('Error al cargar detalles: ' + err.message); }
     }
 

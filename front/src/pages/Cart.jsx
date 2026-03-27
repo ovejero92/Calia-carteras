@@ -34,14 +34,12 @@ const Cart = () => {
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Carrito de compras</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Lista de productos */}
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => {
             const imageUrl = item.image || '/placeholder-product.svg';
             return (
               <div key={item.id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                 <div className="flex space-x-4">
-                  {/* Imagen */}
                   <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                     <img
                       src={imageUrl}
@@ -53,7 +51,6 @@ const Cart = () => {
                     />
                   </div>
 
-                  {/* Información del producto */}
                   <div className="flex-1 min-w-0">
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">
                       {item.name}
@@ -62,7 +59,6 @@ const Cart = () => {
                       {formatPrice(item.price)} c/u
                     </p>
 
-                    {/* Controles de cantidad */}
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -82,7 +78,6 @@ const Cart = () => {
                     </div>
                   </div>
 
-                  {/* Subtotal y eliminar */}
                   <div className="flex flex-col items-end justify-between">
                     <div className="text-lg font-semibold text-gray-900">
                       {formatPrice(item.price * item.quantity)}
@@ -99,7 +94,6 @@ const Cart = () => {
             );
           })}
 
-          {/* Botón limpiar carrito */}
           <div className="flex justify-end">
             <button
               onClick={clearCart}
@@ -110,7 +104,6 @@ const Cart = () => {
           </div>
         </div>
 
-        {/* Resumen del pedido */}
         <div className="lg:col-span-1">
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 sticky top-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">

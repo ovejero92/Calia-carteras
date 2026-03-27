@@ -1,29 +1,24 @@
-import { createContext, useContext, useReducer, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect, useState } from 'react';
 
 const CartContext = createContext();
 
-// Estado inicial del carrito
-const initialState = {
-  items: [],
-  total: 0,
-  itemCount: 0
-};
-
-// Reducer para manejar las acciones del carrito
 function cartReducer(state, action) {
   switch (action.type) {
     case 'ADD_ITEM': {
       const existingItem = state.items.find(item => item.id === action.payload.id);
+      const stockLimit = action.payload.stock !== undefined ? action.payload.stock : Infinity;
 
       if (existingItem) {
+        const newQuantity = Math.min(existingItem.quantity + action.payload.quantity, stockLimit);
         const updatedItems = state.items.map(item =>
           item.id === action.payload.id
-            ? { ...item, quantity: item.quantity + action.payload.quantity }
+            ? { ...item, quantity: newQuantity, stock: stockLimit }
             : item
         );
         return calculateTotals(updatedItems);
       } else {
-        const newItems = [...state.items, action.payload];
+        const newQuantity = Math.min(action.payload.quantity, stockLimit);
+        const newItems = [...state.items, { ...action.payload, quantity: newQuantity }];
         return calculateTotals(newItems);
       }
     }
@@ -34,11 +29,13 @@ function cartReducer(state, action) {
     }
 
     case 'UPDATE_QUANTITY': {
-      const updatedItems = state.items.map(item =>
-        item.id === action.payload.id
-          ? { ...item, quantity: Math.max(0, action.payload.quantity) }
-          : item
-      ).filter(item => item.quantity > 0);
+      const updatedItems = state.items.map(item => {
+        if (item.id === action.payload.id) {
+          const stockLimit = item.stock !== undefined ? item.stock : Infinity;
+          return { ...item, quantity: Math.min(Math.max(0, action.payload.quantity), stockLimit) };
+        }
+        return item;
+      }).filter(item => item.quantity > 0);
       return calculateTotals(updatedItems);
     }
 
@@ -53,7 +50,6 @@ function cartReducer(state, action) {
   }
 }
 
-// Función para calcular totales
 function calculateTotals(items) {
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -65,10 +61,16 @@ function calculateTotals(items) {
   };
 }
 
+const initialState = {
+  items: [],
+  total: 0,
+  itemCount: 0
+};
+
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(cartReducer, initialState);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Cargar carrito desde localStorage al montar
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
@@ -81,7 +83,6 @@ export function CartProvider({ children }) {
     }
   }, []);
 
-  // Guardar carrito en localStorage cuando cambie
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(state));
   }, [state]);
@@ -94,9 +95,11 @@ export function CartProvider({ children }) {
         name: product.name,
         price: product.price,
         image: product.image,
+        stock: product.stock,
         quantity
       }
     });
+    setIsCartOpen(true);
   };
 
   const removeItem = (productId) => {
@@ -116,6 +119,8 @@ export function CartProvider({ children }) {
 
   const value = {
     ...state,
+    isCartOpen,
+    setIsCartOpen,
     addItem,
     removeItem,
     updateQuantity,

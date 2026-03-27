@@ -2,12 +2,8 @@ import { db } from "../firebase/admin.js";
 import admin from "../firebase/admin.js";
 import * as productService from "./product.service.js";
 
-/**
- * Crear una nueva venta
- */
 export const createSale = async (saleData) => {
     try {
-        // Validar que todos los productos existan y tengan stock suficiente
         for (const item of saleData.items) {
             const product = await productService.getProductById(item.productId);
             if (!product) {
@@ -18,17 +14,16 @@ export const createSale = async (saleData) => {
             }
         }
 
-        // Crear la venta
         const newSale = {
             ...saleData,
             saleNumber: await generateSaleNumber(),
+            isRead: false,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
         };
 
         const saleRef = await db.collection('sales').add(newSale);
 
-        // Actualizar stock de productos (solo si la venta está completada)
         if (saleData.status === 'completada') {
             for (const item of saleData.items) {
                 const product = await productService.getProductById(item.productId);
@@ -45,9 +40,6 @@ export const createSale = async (saleData) => {
     }
 };
 
-/**
- * Generar número de venta único
- */
 const generateSaleNumber = async () => {
     try {
         const year = new Date().getFullYear();
@@ -66,26 +58,17 @@ const generateSaleNumber = async () => {
         const num = parseInt(lastNumber.substring(5)) + 1;
         return `V${year}${num.toString().padStart(4, '0')}`;
     } catch (error) {
-        // Si falla, usar timestamp como backup
         return `V${Date.now()}`;
     }
 };
 
-/**
- * Obtener todas las ventas con filtros
- */
 export const getSales = async (filters = {}) => {
     try {
         let query = db.collection('sales');
-
-        // Solo usar un filtro en la consulta para evitar índices compuestos
-        // Ordenaremos en memoria para evitar requerir índices
         let snapshot;
         if (filters.status) {
-            // Si hay filtro de status, usar solo ese filtro sin orderBy
             snapshot = await query.where('status', '==', filters.status).limit(500).get();
         } else {
-            // Si no hay filtro, obtener todas sin ordenar (ordenaremos en memoria)
             snapshot = await query.limit(500).get();
         }
 
@@ -103,9 +86,7 @@ export const getSales = async (filters = {}) => {
             };
         });
 
-        // Aplicar filtros adicionales en memoria para evitar índices compuestos
         if (filters.paymentMethod && !filters.status) {
-            // Si no había filtro de status, aplicar filtro de paymentMethod en memoria
             sales = sales.filter(sale => sale.paymentMethod === filters.paymentMethod);
         }
         if (filters.userId) {
@@ -128,19 +109,16 @@ export const getSales = async (filters = {}) => {
             });
         }
 
-        // Si había filtro de status y paymentMethod, aplicar paymentMethod también en memoria
         if (filters.paymentMethod && filters.status) {
             sales = sales.filter(sale => sale.paymentMethod === filters.paymentMethod);
         }
 
-        // Ordenar por fecha en memoria (más reciente primero)
         sales.sort((a, b) => {
             const dateA = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt);
             const dateB = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt);
             return dateB - dateA; // Descendente
         });
 
-        // Limitar a 100 resultados después de filtrar
         return sales.slice(0, 100);
     } catch (error) {
         console.error("❌ Error en getSales service:", error);
@@ -148,9 +126,6 @@ export const getSales = async (filters = {}) => {
     }
 };
 
-/**
- * Obtener una venta por ID
- */
 export const getSaleById = async (id) => {
     try {
         const doc = await db.collection('sales').doc(id).get();
@@ -171,9 +146,6 @@ export const getSaleById = async (id) => {
     }
 };
 
-/**
- * Actualizar una venta
- */
 export const updateSale = async (id, saleData) => {
     try {
         const existingSale = await getSaleById(id);
@@ -181,10 +153,8 @@ export const updateSale = async (id, saleData) => {
             throw new Error('Venta no encontrada');
         }
 
-        // Si cambia el estado de la venta, actualizar stock
         if (saleData.status && saleData.status !== existingSale.status) {
             if (existingSale.status === 'completada' && saleData.status !== 'completada') {
-                // Si se revierte una venta completada, devolver stock
                 for (const item of existingSale.items) {
                     const product = await productService.getProductById(item.productId);
                     await productService.updateProduct(item.productId, {
@@ -192,7 +162,6 @@ export const updateSale = async (id, saleData) => {
                     });
                 }
             } else if (existingSale.status !== 'completada' && saleData.status === 'completada') {
-                // Si se completa una venta pendiente, descontar stock
                 for (const item of existingSale.items) {
                     const product = await productService.getProductById(item.productId);
                     if (product.stock < item.quantity) {
@@ -219,17 +188,12 @@ export const updateSale = async (id, saleData) => {
     }
 };
 
-/**
- * Eliminar una venta (solo si está cancelada)
- */
 export const deleteSale = async (id) => {
     try {
         const sale = await getSaleById(id);
         if (!sale) {
             throw new Error('Venta no encontrada');
         }
-
-        // Si la venta estaba completada, devolver stock
         if (sale.status === 'completada') {
             for (const item of sale.items) {
                 const product = await productService.getProductById(item.productId);
@@ -248,13 +212,8 @@ export const deleteSale = async (id) => {
     }
 };
 
-/**
- * Obtener estadísticas de ventas
- */
 export const getSaleStats = async (startDate = null, endDate = null) => {
     try {
-        // Simplificar consulta: obtener todas las ventas completadas sin filtros de fecha
-        // Luego filtramos por fecha en memoria para evitar requerir índices compuestos
         let query = db.collection('sales').where('status', '==', 'completada');
 
         const snapshot = await query.get();
@@ -266,7 +225,6 @@ export const getSaleStats = async (startDate = null, endDate = null) => {
             };
         });
 
-        // Filtrar por fecha en memoria si se proporciona
         if (startDate) {
             const start = new Date(startDate);
             start.setHours(0, 0, 0, 0);
@@ -291,7 +249,6 @@ export const getSaleStats = async (startDate = null, endDate = null) => {
             return sum + sale.items.reduce((itemSum, item) => itemSum + (parseInt(item.quantity) || 0), 0);
         }, 0) || 0;
 
-        // Productos más vendidos
         const productSales = {};
         sales.forEach(sale => {
             sale.items.forEach(item => {
@@ -312,12 +269,10 @@ export const getSaleStats = async (startDate = null, endDate = null) => {
             .sort((a, b) => (b.quantity || 0) - (a.quantity || 0))
             .slice(0, 5);
 
-        // Ventas por método de pago
         const paymentMethods = {};
         sales.forEach(sale => {
             let method = sale.paymentMethod || 'otro';
 
-            // Diferenciar tarjetas de débito / crédito cuando haya detalle
             if (method === 'tarjeta' && sale.cardType) {
                 if (sale.cardType === 'debito') {
                     method = 'tarjeta_debito';
@@ -344,5 +299,34 @@ export const getSaleStats = async (startDate = null, endDate = null) => {
     } catch (error) {
         console.error("❌ Error en getSaleStats service:", error);
         throw error;
+    }
+};
+export const getUnreadCount = async () => {
+    try {
+        const snapshot = await db.collection('sales').where('isRead', '==', false).get();
+        return snapshot.size;
+    } catch (error) {
+        console.error("❌ Error en getUnreadCount service:", error);
+        return 0;
+    }
+};
+
+export const markSalesAsRead = async () => {
+    try {
+        const snapshot = await db.collection('sales').where('isRead', '==', false).get();
+        if (snapshot.empty) return;
+
+        const batch = db.batch();
+        snapshot.docs.forEach((doc) => {
+            batch.update(doc.ref, { 
+                isRead: true, 
+                updatedAt: admin.firestore.FieldValue.serverTimestamp() 
+            });
+        });
+
+        await batch.commit();
+        console.log(`✅ Marcadas ${snapshot.size} ventas como leídas`);
+    } catch (error) {
+        console.error("❌ Error en markSalesAsRead service:", error);
     }
 };

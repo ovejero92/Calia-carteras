@@ -1,325 +1,168 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { ShoppingBagIcon, Bars3Icon, XMarkIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { ShoppingBagIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { useSettings } from '../context/SettingsContext';
 import api from '../services/api';
 
 const TAGS = [
- { key:'new', label:'🆕 Productos nuevos', href:'/catalog?tag=new' },
- { key:'sale', label:'🔥 Ofertas del día', href:'/catalog?tag=sale' },
- { key:'bestseller', label:'⭐ Más vendidos', href:'/catalog?tag=bestseller' },
+  { key: 'new',        label: 'Nuevos',       href: '/catalog?tag=new' },
+  { key: 'sale',       label: 'Ofertas',      href: '/catalog?tag=sale' },
+  { key: 'bestseller', label: 'Más vendidos', href: '/catalog?tag=bestseller' },
 ];
 
 const Header = () => {
-    const { itemCount } = useCart();
-    const location = useLocation();
-    const [categories, setCategories] = useState([]);
-    const [menuOpen, setMenuOpen] = useState(false);
-    const [mobileOpen, setMobileOpen] = useState(false);
-    const menuRef = useRef(null);
+  const { itemCount } = useCart();
+  const location      = useLocation();
+  const settings      = useSettings();
+  const [categories, setCategories] = useState([]);
+  const [menuOpen,   setMenuOpen]   = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const menuRef = useRef(null);
 
-    useEffect(() => {
-        api.get('/categories').then(r => {
-            if (r.data?.data) setCategories(r.data.data);
-        }).catch(() => {});
-    }, []);
+  useEffect(() => {
+    api.get('/categories').then(r => {
+      if (r.data?.data) setCategories(r.data.data);
+    }).catch(() => {});
+  }, []);
 
-    // Cerrar mega-menú al hacer click fuera
-    useEffect(() => {
-        const handleClick = (e) => {
-            if (menuRef.current && !menuRef.current.contains(e.target)) {
-                setMenuOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClick);
-        return () => document.removeEventListener('mousedown', handleClick);
-    }, []);
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
-    // Cerrar al navegar
-    useEffect(() => {
-        setMenuOpen(false);
-        setMobileOpen(false);
-    }, [location.pathname, location.search]);
+  useEffect(() => {
+    setMenuOpen(false);
+    setMobileOpen(false);
+  }, [location.pathname, location.search]);
 
-    const primary    = 'var(--color-primary, #1d4ed8)';
-    const navbarBg   = 'var(--color-navbar-bg, #ffffff)';
-    const navbarText = 'var(--color-navbar-text, #1f2937)';
+  const navbarBg   = settings?.colors?.navbarBg  || '#ffffff';
+  const navbarText = settings?.colors?.navbarText || '#1a0f0d';
+  const accent     = settings?.colors?.primary    || '#c8a4a0';
+  const storeName  = settings?.brand?.storeName   || 'Calia';
+  const fontFamily = settings?.typography?.fontFamily || 'inherit';
 
-    const navLinks = [
-        { name: 'Inicio',   href: '/' },
-        { name: 'Catálogo', href: '/catalog' },
-        { name: 'FAQ',      href: '/faq' },
-    ];
+  const navLinks = [
+    { name: 'Inicio',   href: '/' },
+    { name: 'Catálogo', href: '/catalog' },
+    { name: 'FAQ',      href: '/faq' },
+  ];
 
-    return (
-        <>
-            <header style={{
-                backgroundColor: navbarBg,
-                color:           navbarText,
-                boxShadow:       '0 1px 3px rgba(0,0,0,0.08)',
-                borderBottom:    '1px solid rgba(0,0,0,0.06)',
-                position:        'relative',
-                zIndex:          50,
-            }}>
-                <div className="container mx-auto px-4">
-                    <div className="flex items-center justify-between h-16">
+  return (
+    <>
+      <header style={{
+        backgroundColor: navbarBg,
+        color:           navbarText,
+        borderBottom:    '1px solid rgba(0,0,0,0.07)',
+        position:        'sticky',
+        top:             0,
+        zIndex:          100,
+        backdropFilter:  'blur(12px)',
+      }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
 
-                        {/* ── Logo / trigger mega-menú ──────────────────────── */}
-                        <div className="flex items-center" ref={menuRef} style={{ position: 'relative' }}>
-                            <button
-                                onClick={() => setMenuOpen(o => !o)}
-                                aria-label="Abrir categorías"
-                                style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                            >
-                                <div className="w-9 h-9 rounded-lg flex items-center justify-center"
-                                    style={{ backgroundColor: primary, flexShrink: 0 }}>
-                                    <ShoppingBagIcon className="w-5 h-5 text-white" />
-                                </div>
-                                <span className="hidden sm:inline text-xl font-bold"
-                                    style={{ color: navbarText }}>
-                                    Carteras
-                                </span>
-                                <ChevronDownIcon
-                                    className="hidden sm:block w-4 h-4 transition-transform duration-200"
-                                    style={{
-                                        color:     navbarText,
-                                        opacity:   0.55,
-                                        transform: menuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                                    }} />
-                            </button>
+            {/* LOGO */}
+            <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: 2 }}>
+              <span style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.04em', color: navbarText, lineHeight: 1, fontFamily }}>
+                {storeName}
+              </span>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: accent, display: 'inline-block', marginLeft: 2, marginBottom: 3, flexShrink: 0 }} />
+            </Link>
 
-                            {/* Mega-menú desktop */}
-                            {menuOpen && (
-                                <div style={{
-                                    position:            'absolute',
-                                    top:                 'calc(100% + 8px)',
-                                    left:                0,
-                                    background:          '#fff',
-                                    boxShadow:           '0 16px 48px rgba(0,0,0,0.14)',
-                                    borderRadius:        12,
-                                    minWidth:            400,
-                                    padding:             '20px 24px',
-                                    zIndex:              200,
-                                    borderTop:           `3px solid ${primary}`,
-                                    display:             'grid',
-                                    gridTemplateColumns: '1fr 1fr',
-                                    gap:                 '4px 32px',
-                                }}>
-                                    {/* Categorías */}
-                                    <div>
-                                        <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.12em', color: '#9ca3af', marginBottom: 10 }}>
-                                            Categorías
-                                        </p>
-                                        <Link to="/catalog"
-                                            style={{ display: 'block', padding: '8px 10px', borderRadius: 8, color: '#111', fontWeight: 600, textDecoration: 'none', background: '#f9fafb', marginBottom: 4 }}>
-                                            🛍️ Ver todo
-                                        </Link>
-                                        {categories.map(cat => (
-                                            <Link key={cat.id} to={`/catalog?category=${cat.slug}`}
-                                                style={{ display: 'block', padding: '8px 10px', borderRadius: 8, color: '#374151', textDecoration: 'none', transition: 'background .12s' }}
-                                                onMouseEnter={e => e.currentTarget.style.background = '#f3f4f6'}
-                                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                                                {cat.name}
-                                            </Link>
-                                        ))}
-                                    </div>
+            {/* NAV DESKTOP */}
+            <nav style={{ display: 'flex', alignItems: 'center', gap: 4 }} className="hidden md:flex">
+              {navLinks.map(item => {
+                const isActive = location.pathname === item.href;
+                return (
+                  <Link key={item.name} to={item.href}
+                    style={{ padding: '6px 14px', borderRadius: 99, fontSize: 13, fontWeight: isActive ? 600 : 400, color: navbarText, opacity: isActive ? 1 : 0.6, textDecoration: 'none', background: isActive ? 'rgba(0,0,0,0.05)' : 'transparent', transition: 'all 0.15s' }}
+                    onMouseEnter={e => { if (!isActive) e.currentTarget.style.opacity = '1'; }}
+                    onMouseLeave={e => { if (!isActive) e.currentTarget.style.opacity = '0.6'; }}>
+                    {item.name}
+                  </Link>
+                );
+              })}
 
-                                    {/* Tags + FAQ */}
-                                    <div>
-                                        <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.12em', color: '#9ca3af', marginBottom: 10 }}>
-                                            Destacados
-                                        </p>
-                                        {TAGS.map(tag => (
-                                            <Link key={tag.key} to={tag.href}
-                                                style={{ display: 'block', padding: '8px 10px', borderRadius: 8, color: '#374151', textDecoration: 'none', transition: 'background .12s' }}
-                                                onMouseEnter={e => e.currentTarget.style.background = '#f3f4f6'}
-                                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                                                {tag.label}
-                                            </Link>
-                                        ))}
-                                        <div style={{ borderTop: '1px solid #f3f4f6', marginTop: 10, paddingTop: 10 }}>
-                                            <Link to="/faq"
-                                                style={{ display: 'block', padding: '8px 10px', borderRadius: 8, color: '#374151', textDecoration: 'none', transition: 'background .12s' }}
-                                                onMouseEnter={e => e.currentTarget.style.background = '#f3f4f6'}
-                                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                                                ❓ Preguntas Frecuentes
-                                            </Link>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+              {/* Dropdown */}
+              <div ref={menuRef} style={{ position: 'relative' }}>
+                <button onClick={() => setMenuOpen(o => !o)}
+                  style={{ padding: '6px 14px', borderRadius: 99, fontSize: 13, color: navbarText, opacity: menuOpen ? 1 : 0.6, background: menuOpen ? 'rgba(0,0,0,0.05)' : 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s' }}
+                  onMouseEnter={e => { if (!menuOpen) e.currentTarget.style.opacity = '1'; }}
+                  onMouseLeave={e => { if (!menuOpen) e.currentTarget.style.opacity = '0.6'; }}>
+                  Categorías
+                  <span style={{ display: 'inline-block', width: 12, height: 12, transition: 'transform 0.2s', transform: menuOpen ? 'rotate(180deg)' : 'rotate(0deg)', opacity: 0.5 }}>▾</span>
+                </button>
 
-                        {/* ── Nav links desktop ────────────────────────────── */}
-                        <nav className="hidden md:flex space-x-1">
-                            {navLinks.map(item => {
-                                const isActive = location.pathname === item.href;
-                                return (
-                                    <Link key={item.name} to={item.href}
-                                        className="px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                                        style={{
-                                            color:           isActive ? primary : navbarText,
-                                            backgroundColor: isActive ? 'rgba(0,0,0,0.05)' : 'transparent',
-                                            opacity:         isActive ? 1 : 0.8,
-                                            textDecoration:  'none',
-                                        }}>
-                                        {item.name}
-                                    </Link>
-                                );
-                            })}
-                        </nav>
-
-                        {/* ── Carrito + hamburguesa ─────────────────────────── */}
-                        <div className="flex items-center gap-2">
-                            <Link to="/cart"
-                                className="relative flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium"
-                                style={{ color: navbarText, textDecoration: 'none' }}>
-                                <ShoppingBagIcon className="w-5 h-5" />
-                                <span className="hidden sm:inline">Carrito</span>
-                                {itemCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
-                                        style={{ backgroundColor: primary }}>
-                                        {itemCount}
-                                    </span>
-                                )}
-                            </Link>
-
-                            <button onClick={() => setMobileOpen(o => !o)}
-                                className="md:hidden p-2 rounded-md"
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: navbarText }}>
-                                {mobileOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6" />}
-                            </button>
-                        </div>
+                {menuOpen && (
+                  <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: '50%', transform: 'translateX(-50%)', background: '#fff', borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05)', minWidth: 360, padding: '20px 24px', zIndex: 200, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 24px' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 24, right: 24, height: 2, background: accent, borderRadius: '0 0 2px 2px' }} />
+                    <div>
+                      <p style={dropLabel}>Colecciones</p>
+                      <Link to="/catalog" style={dropLink} onMouseEnter={e => e.currentTarget.style.background='#f9f5f3'} onMouseLeave={e => e.currentTarget.style.background='transparent'}>Ver todo el catálogo</Link>
+                      {categories.map(cat => (
+                        <Link key={cat.id} to={`/catalog?category=${cat.slug}`} style={dropLink} onMouseEnter={e => e.currentTarget.style.background='#f9f5f3'} onMouseLeave={e => e.currentTarget.style.background='transparent'}>{cat.name}</Link>
+                      ))}
                     </div>
-                </div>
-            </header>
+                    <div>
+                      <p style={dropLabel}>Destacados</p>
+                      {TAGS.map(tag => (
+                        <Link key={tag.key} to={tag.href} style={dropLink} onMouseEnter={e => e.currentTarget.style.background='#f9f5f3'} onMouseLeave={e => e.currentTarget.style.background='transparent'}>{tag.label}</Link>
+                      ))}
+                      <div style={{ borderTop: '1px solid #f0ebe8', marginTop: 8, paddingTop: 8 }}>
+                        <Link to="/faq" style={dropLink} onMouseEnter={e => e.currentTarget.style.background='#f9f5f3'} onMouseLeave={e => e.currentTarget.style.background='transparent'}>Preguntas frecuentes</Link>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </nav>
 
-            {/* ── Menú móvil ─────────────────────────────────────────────────── */}
-            {mobileOpen && (
-                <div style={{
-                    background:   '#fff',
-                    boxShadow:    '0 8px 24px rgba(0,0,0,0.1)',
-                    padding:      '16px 20px',
-                    zIndex:       49,
-                    position:     'relative',
-                    borderBottom: '1px solid #f3f4f6',
-                }}>
-                    <p style={sectionLabel}>Páginas</p>
-                    {navLinks.map(item => (
-                        <Link key={item.name} to={item.href} style={mobileLink}>
-                            {item.name}
-                        </Link>
-                    ))}
-                    <p style={{ ...sectionLabel, marginTop: 14 }}>Categorías</p>
-                    <Link to="/catalog" style={mobileLink}>🛍️ Ver todo el catálogo</Link>
-                    {categories.map(cat => (
-                        <Link key={cat.id} to={`/catalog?category=${cat.slug}`} style={mobileLink}>
-                            {cat.name}
-                        </Link>
-                    ))}
-                    <p style={{ ...sectionLabel, marginTop: 14 }}>Destacados</p>
-                    {TAGS.map(tag => (
-                        <Link key={tag.key} to={tag.href} style={mobileLink}>{tag.label}</Link>
-                    ))}
-                </div>
-            )}
-        </>
-    );
+            {/* CARRITO + HAMBURGUESA */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Link to="/cart"
+                style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 99, fontSize: 13, fontWeight: 500, color: navbarText, textDecoration: 'none', border: '1px solid rgba(0,0,0,0.1)', transition: 'border-color 0.15s' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor='rgba(0,0,0,0.25)'}
+                onMouseLeave={e => e.currentTarget.style.borderColor='rgba(0,0,0,0.1)'}>
+                <ShoppingBagIcon style={{ width: 16, height: 16 }} />
+                <span className="hidden sm:inline">Carrito</span>
+                {itemCount > 0 && (
+                  <span style={{ position: 'absolute', top: -6, right: -6, background: accent, color: '#fff', fontSize: 10, fontWeight: 700, borderRadius: '50%', width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff' }}>
+                    {itemCount}
+                  </span>
+                )}
+              </Link>
+
+              <button onClick={() => setMobileOpen(o => !o)} className="md:hidden"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: navbarText, padding: 6, borderRadius: 8, display: 'flex' }}>
+                {mobileOpen ? <XMarkIcon style={{ width: 22, height: 22 }} /> : <Bars3Icon style={{ width: 22, height: 22 }} />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {mobileOpen && (
+        <div style={{ background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.06)', padding: '16px 24px 24px', zIndex: 99, position: 'relative' }}>
+          <p style={mobileSectionLabel}>Páginas</p>
+          {navLinks.map(item => <Link key={item.name} to={item.href} style={mobileLink}>{item.name}</Link>)}
+          <p style={{ ...mobileSectionLabel, marginTop: 20 }}>Colecciones</p>
+          <Link to="/catalog" style={mobileLink}>Ver todo el catálogo</Link>
+          {categories.map(cat => <Link key={cat.id} to={`/catalog?category=${cat.slug}`} style={mobileLink}>{cat.name}</Link>)}
+          <p style={{ ...mobileSectionLabel, marginTop: 20 }}>Destacados</p>
+          {TAGS.map(tag => <Link key={tag.key} to={tag.href} style={mobileLink}>{tag.label}</Link>)}
+        </div>
+      )}
+    </>
+  );
 };
 
-const sectionLabel = {
-    fontSize:      10,
-    fontWeight:    700,
-    textTransform: 'uppercase',
-    letterSpacing: '.12em',
-    color:         '#9ca3af',
-    marginBottom:  8,
-    marginTop:     4,
-};
-
-const mobileLink = {
-    display:        'block',
-    padding:        '10px 4px',
-    color:          '#374151',
-    textDecoration: 'none',
-    borderBottom:   '1px solid #f9fafb',
-    fontSize:       '14px',
-};
+const dropLabel = { fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#b0a09a', marginBottom: 8 };
+const dropLink  = { display: 'block', padding: '8px 10px', borderRadius: 8, color: '#2d1a14', textDecoration: 'none', fontSize: 13, transition: 'background 0.12s', cursor: 'pointer' };
+const mobileSectionLabel = { fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#b0a09a', marginBottom: 10 };
+const mobileLink = { display: 'block', padding: '11px 0', color: '#2d1a14', textDecoration: 'none', borderBottom: '1px solid #f5ede8', fontSize: 14 };
 
 export default Header;
-// import { Link, useLocation } from 'react-router-dom';
-// import { useCart } from '../context/CartContext';
-// import { ShoppingBagIcon, HomeIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-
-// const Header = () => {
-//     const { itemCount } = useCart();
-//     const location = useLocation();
-
-//     const navigation = [
-//         { name: 'Inicio',    href: '/',        icon: HomeIcon },
-//         { name: 'Catálogo',  href: '/catalog', icon: MagnifyingGlassIcon },
-//     ];
-
-//     return (
-//         <header style={{
-//             backgroundColor: 'var(--color-navbar-bg, #ffffff)',
-//             color:           'var(--color-navbar-text, #1f2937)',
-//             boxShadow:       '0 1px 3px rgba(0,0,0,0.08)',
-//             borderBottom:    '1px solid rgba(0,0,0,0.06)',
-//         }}>
-//             <div className="container mx-auto px-4">
-//                 <div className="flex items-center justify-between h-16">
-
-//                     {/* Logo */}
-//                     <Link to="/" className="flex items-center space-x-2">
-//                         <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-//                             style={{ backgroundColor: 'var(--color-primary, #1d4ed8)' }}>
-//                             <ShoppingBagIcon className="w-5 h-5 text-white" />
-//                         </div>
-//                         <span className="text-xl font-bold"
-//                             style={{ color: 'var(--color-navbar-text, #1f2937)' }}>
-//                             Carteras
-//                         </span>
-//                     </Link>
-
-//                     {/* Nav links */}
-//                     <nav className="hidden md:flex space-x-2">
-//                         {navigation.map((item) => {
-//                             const Icon = item.icon;
-//                             const isActive = location.pathname === item.href;
-//                             return (
-//                                 <Link key={item.name} to={item.href}
-//                                     className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-//                                     style={{
-//                                         color:           isActive ? 'var(--color-primary, #1d4ed8)' : 'var(--color-navbar-text, #1f2937)',
-//                                         backgroundColor: isActive ? 'rgba(0,0,0,0.05)' : 'transparent',
-//                                         opacity:         isActive ? 1 : 0.85,
-//                                     }}>
-//                                     <Icon className="w-4 h-4" />
-//                                     <span>{item.name}</span>
-//                                 </Link>
-//                             );
-//                         })}
-//                     </nav>
-
-//                     {/* Carrito */}
-//                     <Link to="/cart"
-//                         className="relative flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-//                         style={{ color: 'var(--color-navbar-text, #1f2937)' }}>
-//                         <ShoppingBagIcon className="w-5 h-5" />
-//                         <span className="hidden sm:inline">Carrito</span>
-//                         {itemCount > 0 && (
-//                             <span className="absolute -top-1 -right-1 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
-//                                 style={{ backgroundColor: 'var(--color-primary, #1d4ed8)' }}>
-//                                 {itemCount}
-//                             </span>
-//                         )}
-//                     </Link>
-
-//                 </div>
-//             </div>
-//         </header>
-//     );
-// };
-
-// export default Header;

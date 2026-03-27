@@ -1,4 +1,4 @@
-import { db } from "../firebase/admin.js"; // Suponiendo que exportas db
+import { db } from "../firebase/admin.js"; 
 
 export const getProducts = async () => {
     try {
@@ -25,7 +25,6 @@ export const getProducts = async () => {
 
 export const saveProduct = async (productData) => {
     try {
-        // Agregamos el documento a la colección 'products'
         const docRef = await db.collection('products').add(productData);
         console.log("✅ Producto guardado con ID:", docRef.id);
         return { id: docRef.id, ...productData };

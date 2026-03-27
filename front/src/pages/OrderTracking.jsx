@@ -81,7 +81,6 @@ const OrderTracking = () => {
     <div>
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Seguimiento de pedidos</h1>
 
-      {/* Mensaje de éxito si venimos del checkout */}
       {orderId && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
           <div className="flex items-center">
@@ -96,7 +95,6 @@ const OrderTracking = () => {
         </div>
       )}
 
-      {/* Búsqueda */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Buscar tus pedidos</h2>
         <form onSubmit={handleSearch} className="flex gap-4">
@@ -118,7 +116,6 @@ const OrderTracking = () => {
         </form>
       </div>
 
-      {/* Resultados */}
       {searched && (
         <div className="space-y-6">
           {orders.length === 0 ? (
@@ -130,7 +127,7 @@ const OrderTracking = () => {
             orders.map((order) => (
               <div key={order.id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
 
-                {/* Header */}
+             
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">Pedido #{order.saleNumber}</h3>
@@ -144,7 +141,6 @@ const OrderTracking = () => {
                   </div>
                 </div>
 
-                {/* Banner de estado */}
                 {order.status === 'pendiente' && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
                     <div className="flex items-start">
@@ -197,7 +193,6 @@ const OrderTracking = () => {
                   </div>
                 )}
 
-                {/* Productos */}
                 <div className="space-y-2 mb-4">
                   <h4 className="font-medium text-gray-900 text-sm">Productos:</h4>
                   {order.items.map((item, index) => (
@@ -211,7 +206,6 @@ const OrderTracking = () => {
                   ))}
                 </div>
 
-                {/* Total */}
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center mb-1">
                     <span className="font-medium text-gray-900">Total:</span>

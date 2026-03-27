@@ -13,7 +13,7 @@ export const saleSchema = z.object({
     userName: z.string().min(2, "Nombre del cliente es requerido"),
     userEmail: z.string().email("Email inválido").optional().or(z.literal('')),
     userPhone: z.string().optional(),
-    userAddress: z.string().optional(), // ✅ dirección del cliente
+    userAddress: z.string().optional(),
     items: z.array(saleItemSchema).min(1, "Debe haber al menos un producto en la venta"),
     total: z.coerce.number().positive("El total debe ser mayor a 0"),
     paymentMethod: z.enum(['efectivo', 'transferencia', 'tarjeta', 'otro'], {
@@ -21,10 +21,9 @@ export const saleSchema = z.object({
     }),
     status: z.enum(['pendiente', 'completada', 'cancelada'], {
         errorMap: () => ({ message: "Estado inválido" })
-    }).default('pendiente'), // ✅ default pendiente (viene del front del cliente)
-    estimatedDelivery: z.string().optional(), // ✅ horario estimado que pone la propietaria
+    }).default('pendiente'),
+    estimatedDelivery: z.string().optional(),
     notes: z.string().optional(),
-    // Tipo de tarjeta para distinguir débito / crédito en estadísticas
     cardType: z.enum(['debito', 'credito']).optional()
 });
 

@@ -1,6 +1,5 @@
 import * as categoryService from "../services/category.service.js";
 
-// ── Panel admin ───────────────────────────────────────────────────────────────
 export const renderCategories = async (req, res) => {
     try {
         const categories = await categoryService.getCategories();
@@ -51,7 +50,6 @@ export const deleteCategory = async (req, res) => {
     }
 };
 
-// ── API pública ───────────────────────────────────────────────────────────────
 export const getPublicCategories = async (req, res) => {
     try {
         const categories = await categoryService.getCategories();

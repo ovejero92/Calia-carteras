@@ -105,9 +105,6 @@ export const renderDashboard = async (req, res) => {
     }
 };
 
-/**
- * Obtener estadísticas (API)
- */
 export const getStats = async (req, res) => {
     try {
         const stats = await statsService.getDashboardStats();
@@ -118,7 +115,6 @@ export const getStats = async (req, res) => {
     }
 };
 
-// ── Export CSV con snapshot de métricas del dashboard ────────────────────────
 export const exportDashboardCsv = async (req, res) => {
     try {
         const stats = await statsService.getDashboardStats();

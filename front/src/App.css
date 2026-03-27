@@ -1,4 +1,6 @@
-/* Custom styles for the application */
+h1, h2, h3 {
+  font-family: 'DM Sans', sans-serif;
+}
 
 .line-clamp-2 {
   overflow: hidden;
@@ -6,120 +8,103 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
-
-/* Smooth transitions for interactive elements */
-button, a, input, select, textarea {
-  transition: all 0.2s ease-in-out;
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
-/* Custom scrollbar for webkit browsers */
-::-webkit-scrollbar {
-  width: 6px;
-}
-.sale-badge{
-background:#ef4444;
-color:white;
-font-weight:bold;
-font-size:12px;
-padding:10px;
-width:55px;
-height:55px;
-display:flex;
-align-items:center;
-justify-content:center;
-text-align:center;
-clip-path:polygon(
-50% 0%, 60% 10%, 75% 5%, 80% 20%, 95% 25%, 
-90% 40%, 100% 50%, 90% 60%, 95% 75%, 
-80% 80%, 75% 95%, 60% 90%, 50% 100%, 
-40% 90%, 25% 95%, 20% 80%, 5% 75%, 
-10% 60%, 0% 50%, 10% 40%, 5% 25%, 
-20% 20%, 25% 5%, 40% 10%
-);
-box-shadow:0 3px 6px rgba(0,0,0,0.25);
-}
-@keyframes pulseSale{
-0%{transform:scale(1)}
-50%{transform:scale(1.1)}
-100%{transform:scale(1)}
-}
-@keyframes shine{
-0%{transform:scale(1)}
-50%{transform:scale(1.05)}
-100%{transform:scale(1)}
-}
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: #f5ede8; }
+::-webkit-scrollbar-thumb { background: #c8a4a0; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #b08880; }
 
-.bestseller-badge{
-animation:shine 3s infinite;
-}
-.sale-badge{
-animation:pulseSale 2s infinite;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-/* Focus styles for accessibility */
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #6366f1;
+  outline: 2px solid var(--color-primary, #c8a4a0);
   outline-offset: 2px;
 }
 
-/* Loading spinner animation */
 @keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.animate-spin { animation: spin 1s linear infinite; }
+
+.aspect-square { aspect-ratio: 1 / 1; }
+.min-w-12      { min-width: 3rem; }
+
+button, a {
+  transition: opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.animate-spin {
-  animation: spin 1s linear infinite;
+.new-badge {
+  background:    #16a34a;
+  color:         white;
+  font-weight:   700;
+  font-size:     10px;
+  letter-spacing:0.08em;
+  padding:       3px 9px;
+  border-radius: 99px;
+  box-shadow:    0 2px 6px rgba(0,0,0,0.18);
 }
 
-/* Custom utility classes */
-.aspect-square {
-  aspect-ratio: 1 / 1;
+.bestseller-badge {
+  background:    #facc15;
+  color:         #111;
+  font-weight:   700;
+  font-size:     10px;
+  letter-spacing:0.08em;
+  padding:       3px 9px;
+  border-radius: 99px;
+  box-shadow:    0 2px 6px rgba(0,0,0,0.15);
+  animation:     shine 3s ease-in-out infinite;
 }
 
-.min-w-12 {
-  min-width: 3rem;
+.sale-badge {
+  background:  var(--color-sale-badge, #ef4444);
+  color:       white;
+  font-weight: 800;
+  font-size:   11px;
+  padding:     10px;
+  width:       52px;
+  height:      52px;
+  display:     flex;
+  align-items: center;
+  justify-content: center;
+  text-align:  center;
+  line-height: 1.1;
+  clip-path: polygon(
+    50% 0%, 60% 10%, 75% 5%, 80% 20%, 95% 25%,
+    90% 40%, 100% 50%, 90% 60%, 95% 75%,
+    80% 80%, 75% 95%, 60% 90%, 50% 100%,
+    40% 90%, 25% 95%, 20% 80%, 5% 75%,
+    10% 60%, 0% 50%, 10% 40%, 5% 25%,
+    20% 20%, 25% 5%, 40% 10%
+  );
+  box-shadow:  0 3px 8px rgba(0,0,0,0.25);
+  animation:   pulseSale 2s ease-in-out infinite;
 }
 
-/* NUEVO BADGE */
-.new-badge{
-background:#16a34a;
-color:white;
-font-weight:bold;
-font-size:11px;
-padding:4px 8px;
-border-radius:6px;
-box-shadow:0 2px 4px rgba(0,0,0,0.2);
+@keyframes pulseSale {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.08); }
 }
 
-/* MAS VENDIDO */
-.bestseller-badge{
-background:#facc15;
-color:#111;
-font-weight:bold;
-font-size:11px;
-padding:4px 8px;
-border-radius:6px;
-box-shadow:0 2px 4px rgba(0,0,0,0.2);
-animation:shine 3s infinite;
+@keyframes shine {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.04); }
+}
+
+.fade-section {
+  opacity:    0;
+  transform:  translateY(24px);
+  transition: opacity 0.85s ease, transform 0.85s ease;
+}
+.fade-section.visible {
+  opacity:   1;
+  transform: translateY(0);
 }

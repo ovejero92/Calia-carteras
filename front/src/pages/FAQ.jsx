@@ -5,7 +5,7 @@ import api from '../services/api';
 const FAQ = () => {
     const [faqs,    setFaqs]    = useState([]);
     const [loading, setLoading] = useState(true);
-    const [open,    setOpen]    = useState(null); // índice del acordeón abierto
+    const [open,    setOpen]    = useState(null);
 
     useEffect(() => {
         api.get('/settings/front').then(r => {
@@ -27,7 +27,6 @@ const FAQ = () => {
 
     return (
         <div className="max-w-2xl mx-auto py-8 px-4">
-            {/* Encabezado */}
             <div className="mb-10 text-center">
                 <h1 className="text-3xl font-bold mb-3" style={{ color: 'var(--color-text, #1f2937)' }}>
                     Preguntas Frecuentes
@@ -58,7 +57,6 @@ const FAQ = () => {
                                 transition:   'border-color .2s',
                                 boxShadow:    open === i ? '0 4px 16px rgba(0,0,0,0.07)' : 'none',
                             }}>
-                            {/* Pregunta */}
                             <button
                                 onClick={() => toggle(i)}
                                 style={{
@@ -90,7 +88,6 @@ const FAQ = () => {
                                     }} />
                             </button>
 
-                            {/* Respuesta con animación */}
                             <div style={{
                                 maxHeight:  open === i ? 600 : 0,
                                 overflow:   'hidden',
@@ -112,7 +109,6 @@ const FAQ = () => {
                 </div>
             )}
 
-            {/* CTA al final */}
             <div style={{
                 marginTop:    40,
                 padding:      '24px',

@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// Esquema para crear/actualizar usuario
 export const userSchema = z.object({
     name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
     email: z.string().email("Email inválido"),
@@ -11,7 +10,6 @@ export const userSchema = z.object({
     notes: z.string().optional()
 });
 
-// Esquema para búsqueda/filtrado
 export const userSearchSchema = z.object({
     name: z.string().optional(),
     email: z.string().optional(),

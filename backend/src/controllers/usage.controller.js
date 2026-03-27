@@ -1,23 +1,21 @@
 import cloudinary from "../config/cloudinary.js";
 import { db } from "../firebase/admin.js";
 
-// Límites de los planes gratuitos
 const LIMITS = {
     cloudinary: {
-        credits: 25,          // créditos/mes (se resetean mensualmente)
+        credits: 25,
         label: "Cloudinary · se resetea cada mes"
     },
     firestore: {
-        storageMB: 1024,      // 1 GB en MB
-        reads: 50000,         // lecturas/día
-        writes: 20000,        // escrituras/día
+        storageMB: 1024,
+        reads: 50000,
+        writes: 20000,
         label: "Firestore · plan Spark gratuito"
     }
 };
 
 export const getUsage = async (req, res) => {
     try {
-        // ── 1. CLOUDINARY: contar fotos reales en la carpeta "products" ──
         let cloudinaryUsage = { photos: 0, credits: 25, creditsUsed: 0 };
         try {
             const result = await cloudinary.api.resources({
@@ -27,7 +25,6 @@ export const getUsage = async (req, res) => {
             });
             cloudinaryUsage.photos = result.resources.length;
 
-            // Obtener uso de créditos desde la API de uso de Cloudinary
             const usageResult = await cloudinary.api.usage();
             cloudinaryUsage.creditsUsed = usageResult.credits?.usage || 0;
             cloudinaryUsage.credits = usageResult.credits?.limit || 25;
@@ -35,7 +32,6 @@ export const getUsage = async (req, res) => {
             console.error("⚠️ Error consultando Cloudinary:", e.message);
         }
 
-        // ── 2. FIRESTORE: contar documentos por colección ──
         let firestoreUsage = { products: 0, users: 0, sales: 0, totalDocs: 0 };
         try {
             const [productsSnap, usersSnap, salesSnap] = await Promise.all([
@@ -66,7 +62,6 @@ export const getUsage = async (req, res) => {
                     users: firestoreUsage.users,
                     sales: firestoreUsage.sales,
                     totalDocs: firestoreUsage.totalDocs,
-                    // Estimación: cada doc ~1KB promedio, límite 1GB = ~1.000.000 docs
                     docsLimit: 1000000,
                     percentDocs: Math.min(100, Math.round((firestoreUsage.totalDocs / 1000000) * 100)),
                     readsLimit: LIMITS.firestore.reads,

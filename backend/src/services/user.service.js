@@ -9,16 +9,11 @@ export const getUsers = async (filters = {}) => {
         let query = db.collection('users');
         let snapshot;
 
-        // Evitar índices compuestos: usar solo un filtro en la consulta
-        // Los demás filtros se aplicarán en memoria
         if (filters.status) {
-            // Si hay filtro de status, usar solo ese
             snapshot = await query.where('status', '==', filters.status).limit(500).get();
         } else if (filters.role) {
-            // Si hay filtro de role pero no status, usar solo role
             snapshot = await query.where('role', '==', filters.role).limit(500).get();
         } else {
-            // Si no hay filtros, obtener todos sin orderBy para evitar índices
             snapshot = await query.limit(500).get();
         }
 
@@ -36,17 +31,13 @@ export const getUsers = async (filters = {}) => {
             };
         });
 
-        // Aplicar filtros adicionales en memoria para evitar índices compuestos
         if (filters.status && filters.role) {
-            // Si había filtro de status en consulta, aplicar role en memoria
             users = users.filter(user => user.role === filters.role);
         }
         if (filters.role && filters.status) {
-            // Si había filtro de role en consulta, aplicar status en memoria
             users = users.filter(user => user.status === filters.status);
         }
 
-        // Filtro por nombre o email (búsqueda en memoria)
         if (filters.name || filters.email) {
             users = users.filter(user => {
                 const matchesName = !filters.name || 
@@ -57,11 +48,10 @@ export const getUsers = async (filters = {}) => {
             });
         }
 
-        // Ordenar por fecha en memoria (más reciente primero)
         users.sort((a, b) => {
             const dateA = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt);
             const dateB = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt);
-            return dateB - dateA; // Descendente (más reciente primero)
+            return dateB - dateA;
         });
 
         return users;
@@ -71,9 +61,6 @@ export const getUsers = async (filters = {}) => {
     }
 };
 
-/**
- * Obtener un usuario por ID
- */
 export const getUserById = async (id) => {
     try {
         const doc = await db.collection('users').doc(id).get();
@@ -84,9 +71,6 @@ export const getUserById = async (id) => {
     }
 };
 
-/**
- * Obtener usuario por email
- */
 export const getUserByEmail = async (email) => {
     try {
         const snapshot = await db.collection('users')
@@ -106,12 +90,8 @@ export const getUserByEmail = async (email) => {
     }
 };
 
-/**
- * Crear un nuevo usuario
- */
 export const createUser = async (userData) => {
     try {
-        // Verificar si ya existe un usuario con ese email
         const existingUser = await getUserByEmail(userData.email);
         if (existingUser) {
             throw new Error('Ya existe un usuario con ese email');
@@ -132,12 +112,8 @@ export const createUser = async (userData) => {
     }
 };
 
-/**
- * Actualizar un usuario
- */
 export const updateUser = async (id, userData) => {
     try {
-        // Si se actualiza el email, verificar que no exista otro usuario con ese email
         if (userData.email) {
             const existingUser = await getUserByEmail(userData.email);
             if (existingUser && existingUser.id !== id) {
@@ -159,9 +135,6 @@ export const updateUser = async (id, userData) => {
     }
 };
 
-/**
- * Eliminar un usuario (soft delete - cambiar status a inactivo)
- */
 export const deleteUser = async (id) => {
     try {
         await db.collection('users').doc(id).delete();
@@ -172,9 +145,7 @@ export const deleteUser = async (id) => {
         throw error;
     }
 };
-/**
- * Obtener estadísticas de usuarios
- */
+
 export const getUserStats = async () => {
     try {
         const snapshot = await db.collection('users').get();

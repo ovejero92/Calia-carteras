@@ -7,7 +7,6 @@ try {
   const envKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
   if (envKey) {
   serviceAccount = JSON.parse(envKey);
-  // Esta línea es la clave: limpia comillas extra y formatea saltos de línea
   serviceAccount.private_key = serviceAccount.private_key
     .replace(/\\n/g, '\n')
     .replace(/^'|'$/g, '');
@@ -33,7 +32,6 @@ if (serviceAccount && !admin.apps.length) {
   console.warn("🚀 Firebase no configurado - Modo MOCK activado");
 }
 
-// Exportar servicios mock si Firebase no está disponible
 export const db = firebaseInitialized ? admin.firestore() : null;
 export const auth = firebaseInitialized ? admin.auth() : null;
 export default admin;

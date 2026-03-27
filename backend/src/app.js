@@ -3,11 +3,8 @@ import "dotenv/config"
 import usersRouter from "./routes/users.router.js";
 import ownerRouter from "./routes/owner.router.js";
 import publicRouter from "./routes/public.router.js";
-// import productsRouter from "./routes/products.routes.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-// import swaggerUi from "swagger-ui-express";
-// import { swaggerSpec } from "./docs/swagger.js";
 import handlebars from "express-handlebars"
 import path from "path";
 import { fileURLToPath } from "url";
@@ -20,11 +17,10 @@ app.use(express.json())
 app.use(cookieParser())
 
 
-// Seteando la handlebar para nuestro proyecto
 app.engine('handlebars', handlebars.engine({
     defaultLayout: 'main',
     layoutsDir: path.join(__dirname, 'views/layouts'),
-    partialsDir: path.join(__dirname, 'views/partials'), // ESTA LÍNEA ES CLAVE
+    partialsDir: path.join(__dirname, 'views/partials'),
     helpers: {
         json: function (context) {
             return JSON.stringify(context);
@@ -86,12 +82,9 @@ app.use(cors({
     },
     credentials: true
 }));
-// app.use((req,res,next) => {res.json({msj:"en mantenimiento"})})
-// app.use('/api-docs',swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 app.use(['/users', '/usuarios'], usersRouter)
 app.use('/owner', ownerRouter)
 app.use('/api', publicRouter) // Rutas públicas para el frontend
-// app.use(['/products','/productos'], productsRouter)
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
@@ -104,6 +97,4 @@ app.use((req, res) => {
 
 
 const PORT = process.env.PORT || 3000
-app.listen(PORT, () => console.log(`http://localhost:${PORT}`))
-
-//export default app;
+app.listen(PORT, () => console.log(`http://localhost:${PORT}`))

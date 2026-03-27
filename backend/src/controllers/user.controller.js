@@ -1,9 +1,6 @@
 import * as userService from "../services/user.service.js";
 import { userSchema, userSearchSchema } from "../schemas/user.schema.js";
 
-/**
- * Renderizar vista de gestión de usuarios
- */
 export const renderUsers = async (req, res) => {
     try {
         const filters = {};
@@ -28,12 +25,8 @@ export const renderUsers = async (req, res) => {
     }
 };
 
-/**
- * Crear un nuevo usuario
- */
 export const createUser = async (req, res) => {
     try {
-        // Validar datos con Zod
         const result = userSchema.safeParse(req.body);
 
         if (!result.success) {
@@ -45,7 +38,6 @@ export const createUser = async (req, res) => {
             return res.status(400).json({ errors: errorMessages });
         }
 
-        // Crear usuario
         await userService.createUser(result.data);
 
         res.status(201).json({ status: "success", message: "Usuario creado exitosamente" });
@@ -55,14 +47,10 @@ export const createUser = async (req, res) => {
     }
 };
 
-/**
- * Actualizar un usuario
- */
 export const updateUser = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Validar datos con Zod
         const result = userSchema.safeParse(req.body);
 
         if (!result.success) {
@@ -74,7 +62,6 @@ export const updateUser = async (req, res) => {
             return res.status(400).json({ errors: errorMessages });
         }
 
-        // Verificar que el usuario existe
         const existingUser = await userService.getUserById(id);
         if (!existingUser) {
             return res.status(404).json({ error: "Usuario no encontrado" });
@@ -89,9 +76,6 @@ export const updateUser = async (req, res) => {
     }
 };
 
-/**
- * Eliminar (desactivar) un usuario
- */
 export const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
@@ -110,9 +94,7 @@ export const deleteUser = async (req, res) => {
     }
 };
 
-/**
- * Obtener un usuario por ID (API)
- */
+
 export const getUserById = async (req, res) => {
     try {
         const { id } = req.params;

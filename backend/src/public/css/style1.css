@@ -292,7 +292,7 @@ table tbody tr:last-child td {
 .brand p {
   font-size: 11px;
   font-weight: 300;
-  color: rgba(180, 140, 90, 0.6);
+  color: rgba(180, 140, 90, 0.85); 
   letter-spacing: 0.3em;
   text-transform: uppercase;
   margin-top: 6px;
@@ -332,7 +332,7 @@ table tbody tr:last-child td {
   font-family: "Cormorant Garamond", serif;
   font-size: 13px;
   font-weight: 400;
-  color: rgba(180, 140, 90, 0.6);
+  color: rgba(200, 160, 100, 0.9); 
   letter-spacing: 0.25em;
   text-transform: uppercase;
   margin-bottom: 32px;
@@ -350,7 +350,7 @@ table tbody tr:last-child td {
   font-weight: 500;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: rgba(180, 140, 90, 0.6);
+  color: rgba(200, 160, 100, 0.9); 
   margin-bottom: 10px;
 }
 
@@ -371,7 +371,7 @@ table tbody tr:last-child td {
 }
 
 .field-group input::placeholder {
-  color: rgba(240, 232, 216, 0.2);
+  color: rgba(240, 232, 216, 0.45);
 }
 .field-group input:focus {
   border-bottom-color: transparent;

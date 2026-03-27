@@ -1,436 +1,821 @@
 <div class="panel-layout">
     {{> sidebar }}
     <main class="panel-content">
-
         <div class="design-header">
-            <h2>🎨 Diseño Web</h2>
-            <p>Personaliza los estilos de tu tienda pública.</p>
+            <h2>🎨 Diseño de Tienda</h2>
+            <p>Personalizá la identidad visual, el banner principal y el estilo de tus productos.</p>
         </div>
 
-        <div class="design-card">
-            <form action="/owner/front" method="POST" enctype="multipart/form-data" class="front-settings-form">
-
-                <!-- COLORES GENERALES -->
-                <div class="section-block">
-                    <h3 class="section-title">🎨 Colores Generales</h3>
-                    <p class="section-hint">Colores base que afectan toda la tienda.</p>
-                    <div class="color-grid">
-                        <div class="color-field"><label>Color Primario <span>(botones globales, links)</span></label><div class="color-input-group"><input type="color" class="color-picker" id="pickerPrimary" value="{{settings.colors.primary}}"><input type="text" class="hex-input" id="hexPrimary" name="colorPrimary" value="{{settings.colors.primary}}" maxlength="7" placeholder="#000000"><span class="color-dot" id="previewPrimary" style="background:{{settings.colors.primary}}"></span></div></div>
-                        <div class="color-field"><label>Fondo General</label><div class="color-input-group"><input type="color" class="color-picker" id="pickerBackground" value="{{settings.colors.background}}"><input type="text" class="hex-input" id="hexBackground" name="colorBackground" value="{{settings.colors.background}}" maxlength="7" placeholder="#ffffff"><span class="color-dot" id="previewBackground" style="background:{{settings.colors.background}}"></span></div></div>
-                        <div class="color-field"><label>Texto General</label><div class="color-input-group"><input type="color" class="color-picker" id="pickerText" value="{{settings.colors.text}}"><input type="text" class="hex-input" id="hexText" name="colorText" value="{{settings.colors.text}}" maxlength="7" placeholder="#333333"><span class="color-dot" id="previewText" style="background:{{settings.colors.text}}"></span></div></div>
-                    </div>
-                </div>
-
-                <!-- NAVBAR -->
-                <div class="section-block">
-                    <h3 class="section-title">🧭 Barra de Navegación</h3>
-                    <p class="section-hint">Colores del menú superior de la tienda.</p>
-                    <div class="color-grid">
-                        <div class="color-field"><label>Fondo de la Navbar</label><div class="color-input-group"><input type="color" class="color-picker" id="pickerNavbarBg" value="{{settings.colors.navbarBg}}"><input type="text" class="hex-input" id="hexNavbarBg" name="colorNavbarBg" value="{{settings.colors.navbarBg}}" maxlength="7"><span class="color-dot" id="previewNavbarBg" style="background:{{settings.colors.navbarBg}}"></span></div></div>
-                        <div class="color-field"><label>Texto de la Navbar</label><div class="color-input-group"><input type="color" class="color-picker" id="pickerNavbarText" value="{{settings.colors.navbarText}}"><input type="text" class="hex-input" id="hexNavbarText" name="colorNavbarText" value="{{settings.colors.navbarText}}" maxlength="7"><span class="color-dot" id="previewNavbarText" style="background:{{settings.colors.navbarText}}"></span></div></div>
-                    </div>
-                </div>
-
-                <!-- FOOTER -->
-                <div class="section-block">
-                    <h3 class="section-title">🦶 Pie de Página (Footer)</h3>
-                    <p class="section-hint">Colores del footer inferior de la tienda.</p>
-                    <div class="color-grid">
-                        <div class="color-field"><label>Fondo del Footer</label><div class="color-input-group"><input type="color" class="color-picker" id="pickerFooterBg" value="{{settings.colors.footerBg}}"><input type="text" class="hex-input" id="hexFooterBg" name="colorFooterBg" value="{{settings.colors.footerBg}}" maxlength="7"><span class="color-dot" id="previewFooterBg" style="background:{{settings.colors.footerBg}}"></span></div></div>
-                        <div class="color-field"><label>Texto del Footer</label><div class="color-input-group"><input type="color" class="color-picker" id="pickerFooterText" value="{{settings.colors.footerText}}"><input type="text" class="hex-input" id="hexFooterText" name="colorFooterText" value="{{settings.colors.footerText}}" maxlength="7"><span class="color-dot" id="previewFooterText" style="background:{{settings.colors.footerText}}"></span></div></div>
-                    </div>
-                </div>
-
-                <!-- TIPOGRAFIA -->
-                <div class="section-block">
-                    <h3 class="section-title">🅰️ Tipografía</h3>
-                    <div class="font-layout">
-                        <div class="font-select-col">
-                            <label class="field-label">Fuente Principal</label>
-                            <select class="font-select" id="fontFamily" name="fontFamily">
-                                <optgroup label="── Modernas / Sans-serif ──">
-                                    <option value="'Inter', sans-serif" {{#if (eq settings.typography.fontFamily "'Inter', sans-serif")}}selected{{/if}}>Inter</option>
-                                    <option value="'Outfit', sans-serif" {{#if (eq settings.typography.fontFamily "'Outfit', sans-serif")}}selected{{/if}}>Outfit</option>
-                                    <option value="'Montserrat', sans-serif" {{#if (eq settings.typography.fontFamily "'Montserrat', sans-serif")}}selected{{/if}}>Montserrat</option>
-                                    <option value="'Poppins', sans-serif" {{#if (eq settings.typography.fontFamily "'Poppins', sans-serif")}}selected{{/if}}>Poppins</option>
-                                    <option value="'Nunito', sans-serif" {{#if (eq settings.typography.fontFamily "'Nunito', sans-serif")}}selected{{/if}}>Nunito</option>
-                                    <option value="'DM Sans', sans-serif" {{#if (eq settings.typography.fontFamily "'DM Sans', sans-serif")}}selected{{/if}}>DM Sans</option>
-                                    <option value="'Plus Jakarta Sans', sans-serif" {{#if (eq settings.typography.fontFamily "'Plus Jakarta Sans', sans-serif")}}selected{{/if}}>Plus Jakarta Sans</option>
-                                </optgroup>
-                                <optgroup label="── Clásicas ──">
-                                    <option value="'Roboto', sans-serif" {{#if (eq settings.typography.fontFamily "'Roboto', sans-serif")}}selected{{/if}}>Roboto</option>
-                                    <option value="'Open Sans', sans-serif" {{#if (eq settings.typography.fontFamily "'Open Sans', sans-serif")}}selected{{/if}}>Open Sans</option>
-                                    <option value="'Lato', sans-serif" {{#if (eq settings.typography.fontFamily "'Lato', sans-serif")}}selected{{/if}}>Lato</option>
-                                </optgroup>
-                                <optgroup label="── Elegantes / Serif ──">
-                                    <option value="'Playfair Display', serif" {{#if (eq settings.typography.fontFamily "'Playfair Display', serif")}}selected{{/if}}>Playfair Display</option>
-                                    <option value="'Cormorant Garamond', serif" {{#if (eq settings.typography.fontFamily "'Cormorant Garamond', serif")}}selected{{/if}}>Cormorant Garamond</option>
-                                    <option value="'Merriweather', serif" {{#if (eq settings.typography.fontFamily "'Merriweather', serif")}}selected{{/if}}>Merriweather</option>
-                                    <option value="'Lora', serif" {{#if (eq settings.typography.fontFamily "'Lora', serif")}}selected{{/if}}>Lora</option>
-                                    <option value="'EB Garamond', serif" {{#if (eq settings.typography.fontFamily "'EB Garamond', serif")}}selected{{/if}}>EB Garamond</option>
-                                </optgroup>
-                                <optgroup label="── Expresivas / Display ──">
-                                    <option value="'Josefin Sans', sans-serif" {{#if (eq settings.typography.fontFamily "'Josefin Sans', sans-serif")}}selected{{/if}}>Josefin Sans</option>
-                                    <option value="'Raleway', sans-serif" {{#if (eq settings.typography.fontFamily "'Raleway', sans-serif")}}selected{{/if}}>Raleway</option>
-                                    <option value="'Abril Fatface', cursive" {{#if (eq settings.typography.fontFamily "'Abril Fatface', cursive")}}selected{{/if}}>Abril Fatface</option>
-                                    <option value="'Bebas Neue', cursive" {{#if (eq settings.typography.fontFamily "'Bebas Neue', cursive")}}selected{{/if}}>Bebas Neue</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                        <div class="font-preview-col">
-                            <div class="font-preview-box">
-                                <div class="font-preview-label">Vista previa</div>
-                                <div class="font-preview-text" id="fontPreviewText">Calia Carteras — Tu estilo, tu esencia.</div>
-                                <div class="font-preview-sub" id="fontPreviewSubtext">Bolsos artesanales hechos con amor. ABCDEFGabcdefg 0123456789</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="size-grid" style="margin-top:1.2rem;">
-                        <div class="card-style-field">
-                            <label class="field-label">Tamaño texto base</label>
-                            <select class="card-select" name="fontSizeBase">
-                                <option value="sm" {{#if (eq settings.typography.fontSizeBase "sm")}}selected{{/if}}>Pequeño</option>
-                                <option value="md" {{#if (eq settings.typography.fontSizeBase "md")}}selected{{/if}}>Normal</option>
-                                <option value="lg" {{#if (eq settings.typography.fontSizeBase "lg")}}selected{{/if}}>Grande</option>
-                            </select>
-                        </div>
-                        <div class="card-style-field">
-                            <label class="field-label">Tamaño título producto</label>
-                            <select class="card-select" name="fontSizeTitle">
-                                <option value="sm" {{#if (eq settings.typography.fontSizeTitle "sm")}}selected{{/if}}>Pequeño</option>
-                                <option value="md" {{#if (eq settings.typography.fontSizeTitle "md")}}selected{{/if}}>Normal</option>
-                                <option value="lg" {{#if (eq settings.typography.fontSizeTitle "lg")}}selected{{/if}}>Grande</option>
-                                <option value="xl" {{#if (eq settings.typography.fontSizeTitle "xl")}}selected{{/if}}>Muy grande</option>
-                            </select>
-                        </div>
-                        <div class="card-style-field">
-                            <label class="field-label">Tamaño precio</label>
-                            <select class="card-select" name="fontSizePrice">
-                                <option value="sm" {{#if (eq settings.typography.fontSizePrice "sm")}}selected{{/if}}>Pequeño</option>
-                                <option value="md" {{#if (eq settings.typography.fontSizePrice "md")}}selected{{/if}}>Normal</option>
-                                <option value="lg" {{#if (eq settings.typography.fontSizePrice "lg")}}selected{{/if}}>Grande</option>
-                                <option value="xl" {{#if (eq settings.typography.fontSizePrice "xl")}}selected{{/if}}>Muy grande</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- HERO -->
-                <div class="section-block">
-                    <h3 class="section-title">🖼️ Hero Section <span style="font-weight:400;font-size:.9rem;">(Banner principal)</span></h3>
-                    <div class="color-grid" style="margin-bottom:1rem;">
-                        <div class="color-field"><label>Fondo del Banner <span>(si no hay imagen)</span></label><div class="color-input-group"><input type="color" class="color-picker" id="pickerHeroBackground" value="{{settings.colors.heroBackground}}"><input type="text" class="hex-input" id="hexHeroBackground" name="colorHeroBackground" value="{{settings.colors.heroBackground}}" maxlength="7"><span class="color-dot" id="previewHeroBackground" style="background:{{settings.colors.heroBackground}}"></span></div></div>
-                    </div>
-                    <div class="upload-field">
-                        <label class="field-label">Imagen de Fondo <span style="font-weight:400;color:#9ca3af;">(reemplaza el color)</span></label>
-                        <input class="file-input" type="file" id="heroBanner" name="heroBanner" accept="image/*">
-                        {{#if settings.images.heroBanner}}
-                        <div class="current-image-note">
-                            Imagen actual: <a href="{{settings.images.heroBanner}}" target="_blank">Ver imagen →</a>
-                            &nbsp;—&nbsp; Subí una nueva para reemplazarla.
-                            <input type="hidden" name="heroBannerExisting" value="{{settings.images.heroBanner}}">
-                        </div>
-                        {{/if}}
-                    </div>
-                </div>
-
-                <!-- CARDS -->
-                <div class="section-block">
-                    <h3 class="section-title">🃏 Cards de Productos</h3>
-                    <p class="section-hint">Controlá cada aspecto visual de las tarjetas de productos.</p>
-
-                    <p class="subsection-label">Colores</p>
-                    <div class="color-grid" style="margin-bottom:1.5rem;">
-                        <div class="color-field"><label>Fondo de la card</label><div class="color-input-group"><input type="color" class="color-picker" id="pickerCardBg" value="{{settings.colors.cardBg}}"><input type="text" class="hex-input" id="hexCardBg" name="colorCardBg" value="{{settings.colors.cardBg}}" maxlength="7"><span class="color-dot" id="previewCardBg" style="background:{{settings.colors.cardBg}}"></span></div></div>
-                        <div class="color-field"><label>Texto del producto</label><div class="color-input-group"><input type="color" class="color-picker" id="pickerCardText" value="{{settings.colors.cardText}}"><input type="text" class="hex-input" id="hexCardText" name="colorCardText" value="{{settings.colors.cardText}}" maxlength="7"><span class="color-dot" id="previewCardText" style="background:{{settings.colors.cardText}}"></span></div></div>
-                        <div class="color-field"><label>Precio</label><div class="color-input-group"><input type="color" class="color-picker" id="pickerCardPrice" value="{{settings.colors.cardPrice}}"><input type="text" class="hex-input" id="hexCardPrice" name="colorCardPrice" value="{{settings.colors.cardPrice}}" maxlength="7"><span class="color-dot" id="previewCardPrice" style="background:{{settings.colors.cardPrice}}"></span></div></div>
-                        <div class="color-field"><label>Fondo del botón</label><div class="color-input-group"><input type="color" class="color-picker" id="pickerCardBtnBg" value="{{settings.colors.cardBtnBg}}"><input type="text" class="hex-input" id="hexCardBtnBg" name="colorCardBtnBg" value="{{settings.colors.cardBtnBg}}" maxlength="7"><span class="color-dot" id="previewCardBtnBg" style="background:{{settings.colors.cardBtnBg}}"></span></div></div>
-                        <div class="color-field"><label>Texto del botón</label><div class="color-input-group"><input type="color" class="color-picker" id="pickerCardBtnText" value="{{settings.colors.cardBtnText}}"><input type="text" class="hex-input" id="hexCardBtnText" name="colorCardBtnText" value="{{settings.colors.cardBtnText}}" maxlength="7"><span class="color-dot" id="previewCardBtnText" style="background:{{settings.colors.cardBtnText}}"></span></div></div>
-                        <div class="color-field"><label>Etiqueta "OFERTA"</label><div class="color-input-group"><input type="color" class="color-picker" id="pickerSaleBadge" value="{{settings.colors.saleBadge}}"><input type="text" class="hex-input" id="hexSaleBadge" name="colorSaleBadge" value="{{settings.colors.saleBadge}}" maxlength="7"><span class="color-dot" id="previewSaleBadge" style="background:{{settings.colors.saleBadge}}"></span></div></div>
-                    </div>
-
-                    <p class="subsection-label">Estilo y Forma</p>
-                    <div class="card-style-grid" style="margin-bottom:1.5rem;">
-                        <div class="card-style-field">
-                            <label class="field-label">Sombra</label>
-                            <select class="card-select" id="cardShadow" name="cardShadow">
-                                <option value="none" {{#if (eq settings.cardStyle.shadow "none")}}selected{{/if}}>Ninguna</option>
-                                <option value="sm" {{#if (eq settings.cardStyle.shadow "sm")}}selected{{/if}}>Suave</option>
-                                <option value="md" {{#if (eq settings.cardStyle.shadow "md")}}selected{{/if}}>Media</option>
-                                <option value="lg" {{#if (eq settings.cardStyle.shadow "lg")}}selected{{/if}}>Pronunciada</option>
-                            </select>
-                        </div>
-                        <div class="card-style-field">
-                            <label class="field-label">Bordes de la card</label>
-                            <select class="card-select" id="cardRadius" name="cardRadius">
-                                <option value="none" {{#if (eq settings.cardStyle.radius "none")}}selected{{/if}}>Cuadrado</option>
-                                <option value="sm" {{#if (eq settings.cardStyle.radius "sm")}}selected{{/if}}>Suave</option>
-                                <option value="md" {{#if (eq settings.cardStyle.radius "md")}}selected{{/if}}>Redondeado</option>
-                                <option value="lg" {{#if (eq settings.cardStyle.radius "lg")}}selected{{/if}}>Bastante</option>
-                                <option value="full" {{#if (eq settings.cardStyle.radius "full")}}selected{{/if}}>Máximo</option>
-                            </select>
-                        </div>
-                        <div class="card-style-field">
-                            <label class="field-label">Bordes del botón</label>
-                            <select class="card-select" id="cardBtnRadius" name="cardBtnRadius">
-                                <option value="none" {{#if (eq settings.cardStyle.btnRadius "none")}}selected{{/if}}>Cuadrado</option>
-                                <option value="sm" {{#if (eq settings.cardStyle.btnRadius "sm")}}selected{{/if}}>Suave</option>
-                                <option value="md" {{#if (eq settings.cardStyle.btnRadius "md")}}selected{{/if}}>Redondeado</option>
-                                <option value="lg" {{#if (eq settings.cardStyle.btnRadius "lg")}}selected{{/if}}>Bastante</option>
-                                <option value="full" {{#if (eq settings.cardStyle.btnRadius "full")}}selected{{/if}}>Píldora</option>
-                            </select>
-                        </div>
-                        <div class="card-style-field">
-                            <label class="field-label">Layout</label>
-                            <select class="card-select" id="cardLayout" name="cardLayout">
-                                <option value="vertical" {{#if (eq settings.cardStyle.layout "vertical")}}selected{{/if}}>Vertical</option>
-                                <option value="compact" {{#if (eq settings.cardStyle.layout "compact")}}selected{{/if}}>Compacto</option>
-                            </select>
-                        </div>
-                        <div class="card-style-field card-style-field--checkbox">
-                            <label class="field-label">Mostrar Stock</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="cardShowStock" name="cardShowStock" {{#if settings.cardStyle.showStock}}checked{{/if}}>
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Mostrar disponibilidad</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Preview -->
-                    <div class="card-preview-wrap">
-                        <div class="card-preview-label">👁️ Vista previa en tiempo real</div>
-                        <div class="card-preview-stage">
-                            <div class="card-preview-card" id="cardPreview">
-                                <div class="card-preview-img" id="cardPreviewImg">
-                                    <span class="card-preview-badge" id="cardPreviewBadge" style="background:{{settings.colors.saleBadge}}">OFERTA</span>
-                                </div>
-                                <div class="card-preview-body" id="cardPreviewBody" style="background:{{settings.colors.cardBg}}">
-                                    <div class="card-preview-name" id="cardPreviewName" style="color:{{settings.colors.cardText}}">Cartera artesanal</div>
-                                    <div class="card-preview-price" id="cardPreviewPrice" style="color:{{settings.colors.cardPrice}}">$12.500</div>
-                                    <div class="card-preview-stock" id="cardPreviewStock">Stock: 8 unidades</div>
-                                    <div class="card-preview-btn" id="cardPreviewBtn" style="background:{{settings.colors.cardBtnBg}};color:{{settings.colors.cardBtnText}}">🛍 Agregar</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-footer">
-                    <button type="submit" class="btn-save">💾 Guardar Cambios</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- PRESETS -->
-        <div class="design-card" style="margin-top:1.5rem;">
-            <div class="section-block" style="margin-bottom:0;">
-                <h3 class="section-title">💾 Mis Presets de Card</h3>
-                <p class="section-hint">Guardá hasta 3 combinaciones de estilo para recuperarlas con un click.</p>
-                <div id="presetsList" class="presets-list">
-                    {{#each settings.cardPresets}}
-                    <div class="preset-item" data-index="{{@index}}" data-shadow="{{this.shadow}}" data-radius="{{this.radius}}" data-showstock="{{this.showStock}}" data-layout="{{this.layout}}" data-btnradius="{{this.btnRadius}}">
-                        <div class="preset-info">
-                            <span class="preset-name">{{this.name}}</span>
-                            <span class="preset-meta">Sombra: {{this.shadow}} · Bordes: {{this.radius}} · Botón: {{this.btnRadius}} · Layout: {{this.layout}}</span>
-                        </div>
-                        <div class="preset-actions">
-                            <button type="button" class="btn-preset-apply" onclick="applyPreset(this)">✅ Aplicar</button>
-                            <button type="button" class="btn-preset-delete" onclick="deletePreset({{@index}})">🗑️</button>
-                        </div>
-                    </div>
-                    {{/each}}
-                    {{#unless settings.cardPresets.length}}
-                    <div class="preset-empty">Todavía no tenés presets guardados.</div>
-                    {{/unless}}
-                </div>
-                <div class="preset-save-wrap">
-                    <input type="text" id="presetName" class="preset-name-input" placeholder="Nombre del preset (ej: Estilo Verano)" maxlength="30">
-                    <button type="button" class="btn-save-preset" id="btnSavePreset" {{#if (gte settings.cardPresets.length 3)}}disabled{{/if}} onclick="savePreset()">➕ Guardar preset actual</button>
-                </div>
-                <div id="presetMsg" class="preset-msg" style="display:none;"></div>
+        <!-- 🏷️ Navegación por pestañas (Estética de archivos) -->
+        <div class="tabs-nav-container">
+            <div class="tabs-nav">
+                <button type="button" class="tab-btn active" data-tab="tab-marca">🏷️ Marca & Negocio</button>
+                <button type="button" class="tab-btn" data-tab="tab-hero">🖼️ Banner</button>
+                <button type="button" class="tab-btn" data-tab="tab-navfoot">🧭 Navegación</button>
+                <button type="button" class="tab-btn" data-tab="tab-colors">🎨 Estilos & Fuentes</button>
+                <button type="button" class="tab-btn" data-tab="tab-cards">🃏 Cards de Producto</button>
             </div>
         </div>
 
-        {{> front-faqs-section }}
+        <form action="/owner/front" method="POST" enctype="multipart/form-data" id="mainForm">
+            
+            <div class="tabs-content">
+                
+                <!-- 1. PESTAÑA: MARCA -->
+                <div id="tab-marca" class="tab-pane active">
+                    <div class="design-card">
+                        <div class="section-block">
+                            <h3 class="section-title">🏢 Identidad del Negocio</h3>
+                            <p class="section-hint">Información básica que se muestra en el footer y el banner.</p>
+                            
+                            <div class="field-grid-2">
+                                <div class="field-col">
+                                    <label class="field-label">Nombre de la Tienda</label>
+                                    <input type="text" class="text-input" name="brandStoreName" value="{{settings.brand.storeName}}" placeholder="Ej: Calia Carteras">
+                                </div>
+                                <div class="field-col">
+                                    <label class="field-label">Eslogan / Frase corta</label>
+                                    <input type="text" class="text-input" name="brandTagline" value="{{settings.brand.tagline}}" placeholder="Ej: Tu estilo, tu esencia.">
+                                </div>
+                                <div class="field-col">
+                                    <label class="field-label">WhatsApp de Contacto</label>
+                                    <input type="text" class="text-input" name="brandPhone" value="{{settings.brand.phone}}" placeholder="+54 11 1234-5678">
+                                </div>
+                                <div class="field-col field-col--full">
+                                    <label class="field-label">Dirección / Ciudad</label>
+                                    <input type="text" class="text-input" name="brandAddress" value="{{settings.brand.address}}" placeholder="Buenos Aires, Argentina">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección FAQs dentro de Marca (Pedido por usuario) -->
+                        <div style="border-top:1px solid #e5e7eb; padding-top:1.5rem; margin-top:2rem;">
+                            {{> front-faqs-section }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. PESTAÑA: HERO -->
+                <div id="tab-hero" class="tab-pane">
+                    <div class="design-card">
+                        <div class="section-block">
+                            <h3 class="section-title">🖼️ Hero Section (Banner)</h3>
+                            <p class="section-hint">Configura el mensaje principal que ven tus clientes al entrar.</p>
+
+                            <div class="field-grid-2">
+                                <div class="field-col">
+                                    <label class="field-label">Título Principal</label>
+                                    <input type="text" class="text-input" name="heroTitle" value="{{settings.hero.title}}" placeholder="Ej: Nueva Temporada">
+                                </div>
+                                <div class="field-col">
+                                    <label class="field-label">Frase Superior (Eyebrow)</label>
+                                    <input type="text" class="text-input" name="heroEyebrow" value="{{settings.hero.eyebrow}}" placeholder="Ej: Colección 2026">
+                                </div>
+                                <div class="field-col field-col--full">
+                                    <label class="field-label">Subtítulo / Descripción</label>
+                                    <input type="text" class="text-input" name="heroSubtitle" value="{{settings.hero.subtitle}}" placeholder="Detalle que acompaña al título...">
+                                </div>
+                                <div class="field-col">
+                                    <label class="field-label">Texto del Botón (CTA)</label>
+                                    <input type="text" class="text-input" name="heroCtaLabel" value="{{settings.hero.ctaLabel}}" placeholder="Ej: Ver catálogo">
+                                </div>
+                            </div>
+
+                            <div class="subsection-wrap" style="margin-top:2rem;">
+                                <p class="subsection-label">Fondo del Banner</p>
+                                <div class="field-grid-2">
+                                    <div class="field-col">
+                                        <label class="field-label">Imagen de Fondo</label>
+                                        <input type="file" class="text-input" id="heroBannerInput" name="heroBanner" accept="image/*">
+                                        {{#if settings.images.heroBanner}}
+                                            <div id="currentHeroBanner" class="field-hint" style="color:#065f46;">
+                                                ✓ Imagen actual: <a href="{{settings.images.heroBanner}}" target="_blank">ver</a>
+                                                <input type="hidden" name="heroBannerExisting" id="heroBannerExisting" value="{{settings.images.heroBanner}}">
+                                            </div>
+                                        {{/if}}
+                                    </div>
+                                    <div class="field-col">
+                                        <label class="field-label">Opacidad de Overlay</label>
+                                        <div style="display:flex; align-items:center; gap:10px;">
+                                            <input type="range" id="heroOverlayOpacity" name="heroOverlayOpacity" min="0" max="100" value="{{settings.hero.overlayOpacity}}" style="flex:1;">
+                                            <span id="overlayOpacityVal" style="font-size:0.9rem; font-weight:600; width:35px;">{{settings.hero.overlayOpacity}}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="heroBgColorOptions" style="margin-top:1.5rem;">
+                                    <label class="toggle-switch" style="margin-bottom:1rem;">
+                                        <input type="checkbox" id="heroUseGradient" name="heroUseGradient" {{#if settings.hero.useGradient}}checked{{/if}}>
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Usar fondo Degradado</span>
+                                    </label>
+
+                                    <div id="heroSolidSection" class="field-col" {{#if settings.hero.useGradient}}style="display:none"{{/if}}>
+                                        <label class="field-label">Color de Fondo Sólido</label>
+                                        <div class="color-input-group">
+                                            <input type="color" class="color-picker" id="pickerHeroBackground" value="{{settings.colors.heroBackground}}">
+                                            <input type="text" class="hex-input" id="hexHeroBackground" name="colorHeroBackground" value="{{settings.colors.heroBackground}}" maxlength="7">
+                                            <span class="color-dot" id="previewHeroBackground" style="background:{{settings.colors.heroBackground}}"></span>
+                                        </div>
+                                    </div>
+
+                                    <div id="heroGradientSection" {{#unless settings.hero.useGradient}}style="display:none"{{/unless}}>
+                                        <div class="field-grid-2">
+                                            <div class="field-col">
+                                                <label class="field-label">Color Desde</label>
+                                                <div class="color-input-group">
+                                                    <input type="color" class="color-picker" id="pickerGradFrom" value="{{settings.colors.heroGradFrom}}">
+                                                    <input type="text" class="hex-input" id="hexGradFrom" name="colorHeroGradFrom" value="{{settings.colors.heroGradFrom}}" maxlength="7">
+                                                    <span class="color-dot" id="previewGradFrom" style="background:{{settings.colors.heroGradFrom}}"></span>
+                                                </div>
+                                            </div>
+                                            <div class="field-col">
+                                                <label class="field-label">Color Hasta</label>
+                                                <div class="color-input-group">
+                                                    <input type="color" class="color-picker" id="pickerGradTo" value="{{settings.colors.heroGradTo}}">
+                                                    <input type="text" class="hex-input" id="hexGradTo" name="colorHeroGradTo" value="{{settings.colors.heroGradTo}}" maxlength="7">
+                                                    <span class="color-dot" id="previewGradTo" style="background:{{settings.colors.heroGradTo}}"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="field-col" style="margin-top:1rem;">
+                                            <label class="field-label">Ángulo: <span id="gradAngleVal">{{settings.hero.gradientAngle}}°</span></label>
+                                            <input type="range" id="heroGradientAngle" name="heroGradientAngle" min="0" max="360" value="{{settings.hero.gradientAngle}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preview Hero -->
+                        <div class="card-preview-wrap" style="margin-top:1.5rem;">
+                            <div class="card-preview-label">👁️ Vista previa del Header</div>
+                            <div id="heroPreviewStage" class="hero-preview-stage">
+                                <div id="heroOverlayPreview" class="hero-overlay-preview" style="background:rgba(0,0,0,0.{{settings.hero.overlayOpacity}})"></div>
+                                <div class="hero-content-preview">
+                                    <span id="heroEyebrowPreview" class="hero-eyebrow-p">{{settings.hero.eyebrow}}</span>
+                                    <h1 id="heroTitlePreview" class="hero-title-p">{{settings.hero.title}}</h1>
+                                    <p id="heroSubtitlePreview" class="hero-subtitle-p">{{settings.hero.subtitle}}</p>
+                                    <div id="heroCtaLabelPreview" class="hero-btn-p">{{settings.hero.ctaLabel}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. PESTAÑA: NAVBAR / FOOTER -->
+                <div id="tab-navfoot" class="tab-pane">
+                    <div class="design-card">
+                        <div class="section-block">
+                            <h3 class="section-title">🧭 Barra de navegación y Pie de página </h3>
+                            <p class="section-hint">Estilos de los bordes superior e inferior de tu web.</p>
+                            
+                            <p class="subsection-label" style="margin-top:0;">Barra de navegación (Navbar)</p>
+                            <div class="color-grid" style="margin-bottom:1.5rem;">
+                                <div class="color-field">
+                                    <label>Fondo</label>
+                                    <div class="color-input-group">
+                                        <input type="color" class="color-picker" id="pickerNavbarBg" value="{{settings.colors.navbarBg}}">
+                                        <input type="text" class="hex-input" id="hexNavbarBg" name="colorNavbarBg" value="{{settings.colors.navbarBg}}" maxlength="7">
+                                        <span class="color-dot" id="previewNavbarBg" style="background:{{settings.colors.navbarBg}}"></span>
+                                    </div>
+                                </div>
+                                <div class="color-field">
+                                    <label>Texto / íconos</label>
+                                    <div class="color-input-group">
+                                        <input type="color" class="color-picker" id="pickerNavbarText" value="{{settings.colors.navbarText}}">
+                                        <input type="text" class="hex-input" id="hexNavbarText" name="colorNavbarText" value="{{settings.colors.navbarText}}" maxlength="7">
+                                        <span class="color-dot" id="previewNavbarText" style="background:{{settings.colors.navbarText}}"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="subsection-label">Pie de página (Footer)</p>
+                            <div class="color-grid">
+                                <div class="color-field">
+                                    <label>Fondo</label>
+                                    <div class="color-input-group">
+                                        <input type="color" class="color-picker" id="pickerFooterBg" value="{{settings.colors.footerBg}}">
+                                        <input type="text" class="hex-input" id="hexFooterBg" name="colorFooterBg" value="{{settings.colors.footerBg}}" maxlength="7">
+                                        <span class="color-dot" id="previewFooterBg" style="background:{{settings.colors.footerBg}}"></span>
+                                    </div>
+                                </div>
+                                <div class="color-field">
+                                    <label>Texto</label>
+                                    <div class="color-input-group">
+                                        <input type="color" class="color-picker" id="pickerFooterText" value="{{settings.colors.footerText}}">
+                                        <input type="text" class="hex-input" id="hexFooterText" name="colorFooterText" value="{{settings.colors.footerText}}" maxlength="7">
+                                        <span class="color-dot" id="previewFooterText" style="background:{{settings.colors.footerText}}"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Preview Nav/Foot -->
+                            <div class="navbar-preview-wrap" style="margin-top:2rem;">
+                                <div class="card-preview-label">👁️ Vista previa Nav/Foot</div>
+                                <div class="nav-foot-stage">
+                                    <div id="navbarPreview" style="background:{{settings.colors.navbarBg}}; color:{{settings.colors.navbarText}}; padding:0.8rem 1rem; border-radius:8px 8px 0 0; display:flex; justify-content:space-between; border:1px solid #e2e8f0;">
+                                        <span style="font-weight:700;" id="navbarBrandPreview">{{settings.brand.storeName}}</span>
+                                        <div style="display:flex; gap:10px;"><span>🔍</span><span>🛍️</span></div>
+                                    </div>
+                                    <div style="background:#fff; height:60px; border-left:1px solid #e2e8f0; border-right:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:0.8rem;">Contenido de la tienda...</div>
+                                    <div id="footerPreview" style="background:{{settings.colors.footerBg}}; color:{{settings.colors.footerText}}; padding:1.2rem; border-radius:0 0 8px 8px; border:1px solid #e2e8f0; border-top:none; text-align:center;">
+                                        <div style="font-weight:700; margin-bottom:0.2rem;" id="footerBrandPreview">{{settings.brand.storeName}}</div>
+                                        <div style="font-size:0.8rem; opacity:0.8;" id="footerTaglinePreview">{{settings.brand.tagline}}</div>
+                                        <div style="font-size:0.7rem; margin-top:0.8rem; opacity:0.6;">© 2026 Todos los derechos reservados.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. PESTAÑA: COLORES Y TIPOGRAFÍA -->
+                <div id="tab-colors" class="tab-pane">
+                    <div class="design-card">
+                        <div class="section-block">
+                            <h3 class="section-title">🎨 Colores Generales</h3>
+                            <div class="color-grid">
+                                <div class="color-field">
+                                    <label>Accento / Primario</label>
+                                    <div class="color-input-group">
+                                        <input type="color" class="color-picker" id="pickerPrimary" value="{{settings.colors.primary}}">
+                                        <input type="text" class="hex-input" id="hexPrimary" name="colorPrimary" value="{{settings.colors.primary}}" maxlength="7">
+                                        <span class="color-dot" id="previewPrimary" style="background:{{settings.colors.primary}}"></span>
+                                    </div>
+                                </div>
+                                <div class="color-field">
+                                    <label>Fondo de Página</label>
+                                    <div class="color-input-group">
+                                        <input type="color" class="color-picker" id="pickerBackground" value="{{settings.colors.background}}">
+                                        <input type="text" class="hex-input" id="hexBackground" name="colorBackground" value="{{settings.colors.background}}" maxlength="7">
+                                        <span class="color-dot" id="previewBackground" style="background:{{settings.colors.background}}"></span>
+                                    </div>
+                                </div>
+                                <div class="color-field">
+                                    <label>Texto General</label>
+                                    <div class="color-input-group">
+                                        <input type="color" class="color-picker" id="pickerText" value="{{settings.colors.text}}">
+                                        <input type="text" class="hex-input" id="hexText" name="colorText" value="{{settings.colors.text}}" maxlength="7">
+                                        <span class="color-dot" id="previewText" style="background:{{settings.colors.text}}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-block" style="border-top:1px solid #e5e7eb; padding-top:2.5rem;">
+                            <h3 class="section-title">🅰️ Tipografía de la Tienda</h3>
+                            <div class="field-grid-2">
+                                <div class="field-col">
+                                    <label class="field-label">Familia de Fuente</label>
+                                    <select class="card-select" id="fontFamily" name="fontFamily">
+                                        <optgroup label="Modernas">
+                                            <option value="'Inter', sans-serif" {{#if (eq settings.typography.fontFamily "'Inter', sans-serif")}}selected{{/if}}>Inter</option>
+                                            <option value="'Outfit', sans-serif" {{#if (eq settings.typography.fontFamily "'Outfit', sans-serif")}}selected{{/if}}>Outfit</option>
+                                            <option value="'Montserrat', sans-serif" {{#if (eq settings.typography.fontFamily "'Montserrat', sans-serif")}}selected{{/if}}>Montserrat</option>
+                                            <option value="'Poppins', sans-serif" {{#if (eq settings.typography.fontFamily "'Poppins', sans-serif")}}selected{{/if}}>Poppins</option>
+                                            <option value="'DM Sans', sans-serif" {{#if (eq settings.typography.fontFamily "'DM Sans', sans-serif")}}selected{{/if}}>DM Sans</option>
+                                        </optgroup>
+                                        <optgroup label="Clásicas">
+                                            <option value="'Roboto', sans-serif" {{#if (eq settings.typography.fontFamily "'Roboto', sans-serif")}}selected{{/if}}>Roboto</option>
+                                            <option value="'Lato', sans-serif" {{#if (eq settings.typography.fontFamily "'Lato', sans-serif")}}selected{{/if}}>Lato</option>
+                                        </optgroup>
+                                        <optgroup label="Elegantes">
+                                            <option value="'Playfair Display', serif" {{#if (eq settings.typography.fontFamily "'Playfair Display', serif")}}selected{{/if}}>Playfair Display</option>
+                                            <option value="'EB Garamond', serif" {{#if (eq settings.typography.fontFamily "'EB Garamond', serif")}}selected{{/if}}>EB Garamond</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div class="field-col">
+                                    <label class="field-label">Tamaño Base</label>
+                                    <select class="card-select" name="fontSizeBase">
+                                        <option value="sm" {{#if (eq settings.typography.fontSizeBase "sm")}}selected{{/if}}>Pequeño</option>
+                                        <option value="md" {{#if (eq settings.typography.fontSizeBase "md")}}selected{{/if}}>Normal</option>
+                                        <option value="lg" {{#if (eq settings.typography.fontSizeBase "lg")}}selected{{/if}}>Grande</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Preview Fuente -->
+                            <div class="font-preview-box" id="fontPreviewWrap" style="margin-top:1.5rem; background:#f8fafc; padding:1.2rem; border-radius:10px; border:1px dashed #cbd5e1;">
+                                <div style="font-size:1.4rem; font-weight:700; color:#1e293b; margin-bottom:0.5rem;" id="fontPreviewText">Calia Carteras</div>
+                                <div style="font-size:0.95rem; color:#64748b;" id="fontPreviewSubtext">Este es un ejemplo de cómo se verá el texto en tu tienda con la fuente seleccionada.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. PESTAÑA: CARDS Y PRESETS -->
+                <div id="tab-cards" class="tab-pane">
+                    <div class="design-card">
+                        <div class="section-block">
+                            <h3 class="section-title">🃏 Cards de Productos</h3>
+                            <p class="section-hint">Personalizá el contenedor donde se muestran tus productos.</p>
+
+                            <p class="subsection-label">Colores de Tarjeta</p>
+                            <div class="color-grid" style="margin-bottom:2rem;">
+                                <div class="color-field">
+                                    <label>Fondo Card</label>
+                                    <div class="color-input-group">
+                                        <input type="color" class="color-picker" id="pickerCardBg" value="{{settings.colors.cardBg}}">
+                                        <input type="text" class="hex-input" id="hexCardBg" name="colorCardBg" value="{{settings.colors.cardBg}}" maxlength="7">
+                                        <span class="color-dot" id="previewCardBg" style="background:{{settings.colors.cardBg}}"></span>
+                                    </div>
+                                </div>
+                                <div class="color-field">
+                                    <label>Texto Nombre</label>
+                                    <div class="color-input-group">
+                                        <input type="color" class="color-picker" id="pickerCardText" value="{{settings.colors.cardText}}">
+                                        <input type="text" class="hex-input" id="hexCardText" name="colorCardText" value="{{settings.colors.cardText}}" maxlength="7">
+                                        <span class="color-dot" id="previewCardText" style="background:{{settings.colors.cardText}}"></span>
+                                    </div>
+                                </div>
+                                <div class="color-field">
+                                    <label>Precio</label>
+                                    <div class="color-input-group">
+                                        <input type="color" class="color-picker" id="pickerCardPrice" value="{{settings.colors.cardPrice}}">
+                                        <input type="text" class="hex-input" id="hexCardPrice" name="colorCardPrice" value="{{settings.colors.cardPrice}}" maxlength="7">
+                                        <span class="color-dot" id="previewCardPrice" style="background:{{settings.colors.cardPrice}}"></span>
+                                    </div>
+                                </div>
+                                <div class="color-field">
+                                    <label>Fondo Botón</label>
+                                    <div class="color-input-group">
+                                        <input type="color" class="color-picker" id="pickerCardBtnBg" value="{{settings.colors.cardBtnBg}}">
+                                        <input type="text" class="hex-input" id="hexCardBtnBg" name="colorCardBtnBg" value="{{settings.colors.cardBtnBg}}" maxlength="7">
+                                        <span class="color-dot" id="previewCardBtnBg" style="background:{{settings.colors.cardBtnBg}}"></span>
+                                    </div>
+                                </div>
+                                <div class="color-field">
+                                    <label>Etiqueta "OFERTA"</label>
+                                    <div class="color-input-group">
+                                        <input type="color" class="color-picker" id="pickerSaleBadge" value="{{settings.colors.saleBadge}}">
+                                        <input type="text" class="hex-input" id="hexSaleBadge" name="colorSaleBadge" value="{{settings.colors.saleBadge}}" maxlength="7">
+                                        <span class="color-dot" id="previewSaleBadge" style="background:{{settings.colors.saleBadge}}"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="subsection-label">Forma y Estilo</p>
+                            <div class="card-style-grid">
+                                <div class="card-style-field">
+                                    <label class="field-label">Sombra</label>
+                                    <select class="card-select" id="cardShadow" name="cardShadow">
+                                        <option value="none" {{#if (eq settings.cardStyle.shadow "none")}}selected{{/if}}>Ninguna</option>
+                                        <option value="sm" {{#if (eq settings.cardStyle.shadow "sm")}}selected{{/if}}>Suave</option>
+                                        <option value="md" {{#if (eq settings.cardStyle.shadow "md")}}selected{{/if}}>Media</option>
+                                        <option value="lg" {{#if (eq settings.cardStyle.shadow "lg")}}selected{{/if}}>Pronunciada</option>
+                                    </select>
+                                </div>
+                                <div class="card-style-field">
+                                    <label class="field-label">Bordes Card</label>
+                                    <select class="card-select" id="cardRadius" name="cardRadius">
+                                        <option value="none" {{#if (eq settings.cardStyle.radius "none")}}selected{{/if}}>Cuadrados</option>
+                                        <option value="sm" {{#if (eq settings.cardStyle.radius "sm")}}selected{{/if}}>Suaves</option>
+                                        <option value="md" {{#if (eq settings.cardStyle.radius "md")}}selected{{/if}}>Redondeados</option>
+                                        <option value="lg" {{#if (eq settings.cardStyle.radius "lg")}}selected{{/if}}>Bastante</option>
+                                        <option value="full" {{#if (eq settings.cardStyle.radius "full")}}selected{{/if}}>Máximos</option>
+                                    </select>
+                                </div>
+                                <div class="card-style-field">
+                                    <label class="field-label">Estilo Botón</label>
+                                    <select class="card-select" id="cardBtnRadius" name="cardBtnRadius">
+                                        <option value="none" {{#if (eq settings.cardStyle.btnRadius "none")}}selected{{/if}}>Cuadrado</option>
+                                        <option value="md" {{#if (eq settings.cardStyle.btnRadius "md")}}selected{{/if}}>Redondeado</option>
+                                        <option value="full" {{#if (eq settings.cardStyle.btnRadius "full")}}selected{{/if}}>Píldora</option>
+                                    </select>
+                                </div>
+                                <div class="card-style-field">
+                                    <label class="field-label">Layout</label>
+                                    <select class="card-select" id="cardLayout" name="cardLayout">
+                                        <option value="vertical" {{#if (eq settings.cardStyle.layout "vertical")}}selected{{/if}}>Vertical</option>
+                                        <option value="compact" {{#if (eq settings.cardStyle.layout "compact")}}selected{{/if}}>Compacto</option>
+                                    </select>
+                                </div>
+                                <div class="card-style-field card-style-field--checkbox">
+                                    <label class="field-label">Mostrar Stock</label>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="cardShowStock" name="cardShowStock" {{#if settings.cardStyle.showStock}}checked{{/if}}>
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Visible</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preview Card -->
+                        <div class="card-preview-wrap" style="margin-top:1.5rem;">
+                            <div class="card-preview-label">👁️ Vista previa de Card</div>
+                            <div class="card-preview-stage">
+                                <div class="card-preview-card" id="cardPreview" style="background:#fff;">
+                                    <div class="card-preview-img" id="cardPreviewImg">
+                                        <span class="card-preview-badge" id="cardPreviewBadge" style="background:{{settings.colors.saleBadge}}">OFERTA</span>
+                                    </div>
+                                    <div class="card-preview-body" id="cardPreviewBody" style="background:{{settings.colors.cardBg}}">
+                                        <div class="card-preview-name" id="cardPreviewName" style="color:{{settings.colors.cardText}}">Cartera artesanal</div>
+                                        <div class="card-preview-price" id="cardPreviewPrice" style="color:{{settings.colors.cardPrice}}">$45.000</div>
+                                        <div class="card-preview-stock" id="cardPreviewStock">Stock: 8 unidades</div>
+                                        <div class="card-preview-btn" id="cardPreviewBtn" style="background:{{settings.colors.cardBtnBg}}; color:#fff;">🛍 Agregar</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Presets de Card dentro de Cards Tab (Pedido por usuario) -->
+                        <div class="section-block" style="border-top:1px solid #e5e7eb; padding-top:2.5rem; margin-top:2rem;">
+                            <h3 class="section-title">💾 Mis Presets</h3>
+                            <p class="section-hint">Guarda combinaciones de estilo para aplicarlas rápido.</p>
+                            
+                            <div id="presetsList" class="presets-list">
+                                {{#each settings.cardPresets}}
+                                <div class="preset-item" data-index="{{@index}}" data-shadow="{{this.shadow}}" data-radius="{{this.radius}}" data-showstock="{{this.showStock}}" data-layout="{{this.layout}}" data-btnradius="{{this.btnRadius}}">
+                                    <div class="preset-info">
+                                        <span class="preset-name">{{this.name}}</span>
+                                        <span class="preset-meta">S:{{this.shadow}} · R:{{this.radius}} · B:{{this.btnRadius}} · L:{{this.layout}}</span>
+                                    </div>
+                                    <div class="preset-actions">
+                                        <button type="button" class="btn-preset-apply" onclick="applyPreset(this)">✅ Aplicar</button>
+                                        <button type="button" class="btn-preset-delete" onclick="deletePreset({{@index}})">🗑️</button>
+                                    </div>
+                                </div>
+                                {{/each}}
+                                {{#unless settings.cardPresets.length}}
+                                <div class="preset-empty">Sin presets guardados.</div>
+                                {{/unless}}
+                            </div>
+
+                            <div class="preset-save-wrap" style="margin-top:1.2rem;">
+                                <input type="text" id="presetName" class="preset-name-input" placeholder="Nombre (ej: Estilo Verano)" maxlength="30">
+                                <button type="button" class="btn-save-preset" id="btnSavePreset" {{#if (gte settings.cardPresets.length 3)}}disabled{{/if}} onclick="savePreset()">➕ Guardar actual</button>
+                            </div>
+                            <div id="presetMsg" class="preset-msg" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div> <!-- Fin tabs-content -->
+
+            <!-- 💾 BOTÓN GUARDAR GLOBAL (Visible desde cualquier pestaña) -->
+            <div class="form-footer">
+                <button type="submit" class="btn-save">💾 Guardar todos los cambios</button>
+            </div>
+
+        </form>
     </main>
 </div>
 
+<!-- FUENTES GOOGLE -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@400;600&family=Montserrat:wght@400;600&family=Poppins:wght@400;600&family=Nunito:wght@400;600&family=DM+Sans:wght@400;600&family=Plus+Jakarta+Sans:wght@400;600&family=Roboto:wght@400;600&family=Open+Sans:wght@400;600&family=Lato:wght@400;600&family=Playfair+Display:wght@400;600&family=Cormorant+Garamond:wght@400;600&family=Merriweather:wght@400;600&family=Lora:wght@400;600&family=EB+Garamond:wght@400;600&family=Josefin+Sans:wght@400;600&family=Raleway:wght@400;600&family=Abril+Fatface&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Inter:wght@400;600&family=Outfit:wght@400;600&family=Montserrat:wght@400;600&family=Poppins:wght@400;600&family=Nunito:wght@400;600&family=Roboto:wght@400;600&family=Open+Sans:wght@400;600&family=Lato:wght@400;600&family=Playfair+Display:wght@400;600&family=EB+Garamond:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-.subsection-label { font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#9ca3af; margin:0 0 .8rem 0; }
-.size-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:1rem; }
-.card-style-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:1rem; }
-.card-style-field { display:flex; flex-direction:column; gap:.4rem; }
-.card-style-field--checkbox { justify-content:flex-start; }
-.card-select { padding:.5rem .8rem; border:1.5px solid #e5e7eb; border-radius:8px; font-size:.9rem; background:#fafafa; cursor:pointer; transition:border-color .2s; margin-bottom:0; }
-.card-select:focus { outline:none; border-color:#6366f1; }
-.toggle-switch { display:flex; align-items:center; gap:.6rem; cursor:pointer; user-select:none; }
-.toggle-switch input { display:none; }
-.toggle-slider { position:relative; width:42px; height:24px; background:#d1d5db; border-radius:999px; transition:background .25s; flex-shrink:0; }
-.toggle-slider::after { content:''; position:absolute; top:3px; left:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:left .25s; }
-.toggle-switch input:checked + .toggle-slider { background:#6366f1; }
-.toggle-switch input:checked + .toggle-slider::after { left:21px; }
-.toggle-label { font-size:.9rem; color:#374151; }
-.card-preview-wrap { background:#f8fafc; border:1px dashed #cbd5e1; border-radius:12px; padding:1.2rem; }
-.card-preview-label { font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#64748b; margin-bottom:.8rem; }
-.card-preview-stage { display:flex; justify-content:center; }
-.card-preview-card { width:180px; background:#fff; border:1px solid #e5e7eb; overflow:hidden; transition:all .25s ease; }
-.card-preview-img { width:100%; height:140px; background:linear-gradient(135deg,#e0e7ff 0%,#fce7f3 100%); position:relative; display:flex; align-items:center; justify-content:center; transition:all .25s ease; }
-.card-preview-badge { position:absolute; top:8px; right:8px; color:#fff; font-size:.62rem; font-weight:700; padding:2px 8px; border-radius:4px; text-transform:uppercase; transition:background .2s; }
-.card-preview-body { padding:.7rem; transition:all .25s ease; }
-.card-preview-name { font-weight:600; font-size:.85rem; margin-bottom:.3rem; transition:color .2s,font-size .2s; }
-.card-preview-price { font-size:1rem; font-weight:700; margin-bottom:.4rem; transition:color .2s,font-size .2s; }
-.card-preview-stock { font-size:.72rem; color:#6b7280; margin-bottom:.5rem; }
-.card-preview-btn { font-size:.75rem; padding:.4rem .8rem; border-radius:6px; text-align:center; font-weight:600; transition:background .2s,color .2s,border-radius .2s; }
-.presets-list { display:flex; flex-direction:column; gap:.7rem; margin-bottom:1.2rem; }
-.preset-item { display:flex; align-items:center; justify-content:space-between; gap:1rem; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:10px; padding:.8rem 1rem; }
-.preset-info { display:flex; flex-direction:column; gap:.15rem; }
-.preset-name { font-weight:600; font-size:.9rem; color:#1e293b; }
-.preset-meta { font-size:.75rem; color:#64748b; }
-.preset-actions { display:flex; gap:.5rem; flex-shrink:0; }
-.btn-preset-apply { background:#ecfdf5; border:1px solid #6ee7b7; color:#065f46; font-size:.8rem; padding:.35rem .75rem; border-radius:7px; cursor:pointer; font-weight:600; }
-.btn-preset-apply:hover { background:#d1fae5; }
-.btn-preset-delete { background:#fef2f2; border:1px solid #fca5a5; color:#991b1b; font-size:.85rem; padding:.35rem .6rem; border-radius:7px; cursor:pointer; }
-.btn-preset-delete:hover { background:#fee2e2; }
-.preset-empty { color:#94a3b8; font-size:.9rem; text-align:center; padding:1rem 0; }
-.preset-save-wrap { display:flex; gap:.7rem; flex-wrap:wrap; align-items:center; }
-.preset-name-input { flex:1; min-width:180px; padding:.5rem .8rem; border:1px solid #d1d5db; border-radius:8px; font-size:.9rem; }
-.preset-name-input:focus { outline:none; border-color:#6366f1; }
-.btn-save-preset { background:#6366f1; color:#fff; border:none; padding:.5rem 1.1rem; border-radius:8px; font-size:.9rem; font-weight:600; cursor:pointer; }
-.btn-save-preset:hover:not(:disabled) { background:#4f46e5; }
-.btn-save-preset:disabled { opacity:.45; cursor:not-allowed; }
-.preset-msg { margin-top:.7rem; padding:.5rem .9rem; border-radius:8px; font-size:.88rem; font-weight:500; }
-.preset-msg.success { background:#ecfdf5; color:#065f46; border:1px solid #6ee7b7; }
-.preset-msg.error { background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; }
+/* --- LAYOUT REFINEMENT (Internal Scroll) --- */
+.panel-content { 
+    height: 100vh; overflow: hidden; display: flex; flex-direction: column; 
+    padding: 0 !important; 
+}
+.design-header { padding: 1.5rem 2.5rem 1rem; flex-shrink: 0; }
+
+.tabs-nav-container { padding: 0 2.5rem; flex-shrink: 0; margin-bottom: -1px; position: relative; z-index: 10; }
+.tabs-nav { display: flex; gap: 0.4rem; }
+.tab-btn { 
+    background: #e2e8f0; border: 1px solid #cbd5e1; border-bottom: none; 
+    padding: 0.8rem 1.4rem; border-radius: 12px 12px 0 0; cursor: pointer; 
+    font-size: 0.85rem; font-weight: 600; color: #64748b; transition: all 0.2s; 
+    white-space: nowrap; position: relative; bottom: -1px;
+}
+.tab-btn:hover { background: #cbd5e1; color: #1e293b; }
+.tab-btn.active { 
+    background: #fff; color: #c8a4a0; border-color: #cbd5e1; border-bottom: 2px solid #fff; 
+    padding-bottom: 0.9rem; z-index: 12; transform: translateY(-1px);
+}
+
+#mainForm { flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 0 2.5rem 1.5rem; }
+.tabs-content { 
+    flex: 1; overflow-y: auto; 
+    background: #fff; border: 1px solid #cbd5e1; border-radius: 0 20px 20px 20px; 
+    padding: 2.5rem; position: relative; z-index: 1;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05); 
+}
+
+/* Scrollbar personalizado */
+.tabs-content::-webkit-scrollbar { width: 8px; }
+.tabs-content::-webkit-scrollbar-track { background: #f8fafc; border-radius: 0 20px 20px 0; }
+.tabs-content::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid #f8fafc; }
+.tabs-content::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+.tab-pane { display: none; }
+.tab-pane.active { display: block; animation: fadeInTabs 0.3s ease-out; }
+
+@keyframes fadeInTabs { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- FORM & INPUTS --- */
+.design-card { background:transparent; padding:0; }
+.section-block { margin-bottom: 2rem; }
+.section-title { font-size: 1.15rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.6rem; }
+.section-hint { font-size: 0.85rem; color: #64748b; margin-bottom: 1.5rem; }
+
+.field-grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.2rem; }
+.field-col { display: flex; flex-direction: column; gap: 0.5rem; }
+.field-col--full { grid-column: 1 / -1; }
+.field-label { font-size: 0.82rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.02em; }
+
+.text-input, .card-select { 
+    width: 100%; padding: 0.65rem 0.9rem; border: 1.5px solid #e2e8f0; border-radius: 10px; 
+    font-size: 0.9rem; background: #fafafa; transition: all 0.2s; 
+}
+.text-input:focus, .card-select:focus { outline: none; border-color: #c8a4a0; background: #fff; box-shadow: 0 0 0 3px rgba(200, 164, 160, 0.15); }
+
+/* --- COLOR PICKERS --- */
+.color-input-group { display: flex; align-items: center; gap: 0.5rem; }
+.color-picker { width: 32px; height: 32px; border: none; border-radius: 6px; padding: 0; cursor: pointer; background: transparent; }
+.color-picker::-webkit-color-swatch-wrapper { padding: 0; }
+.color-picker::-webkit-color-swatch { border: none; border-radius: 6px; }
+.hex-input { width: 85px; font-family: monospace; font-size: 0.85rem; padding: 0.4rem 0.5rem; border: 1.5px solid #e2e8f0; border-radius: 6px; text-transform: uppercase; }
+.color-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); }
+
+/* --- TOGGLE SWITCH --- */
+.toggle-switch { display: flex; align-items: center; gap: 0.8rem; cursor: pointer; user-select: none; }
+.toggle-switch input { display: none; }
+.toggle-slider { position: relative; width: 42px; height: 22px; background: #cbd5e1; border-radius: 20px; transition: 0.3s; }
+.toggle-slider:after { content: ""; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: 0.3s; }
+.toggle-switch input:checked + .toggle-slider { background: #c8a4a0; }
+.toggle-switch input:checked + .toggle-slider:after { left: 23px; }
+.toggle-label { font-size: 0.9rem; font-weight: 500; color: #475569; }
+
+/* --- HERO PREVIEW --- */
+.hero-preview-stage { 
+    width: 100%; height: 260px; background: #333; position: relative; 
+    border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; text-align: center;
+}
+.hero-overlay-preview { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; pointer-events: none; }
+.hero-content-preview { position: relative; z-index: 2; padding: 2rem; color: #fff; max-width: 400px; }
+.hero-eyebrow-p { text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.15em; opacity: 0.8; font-weight: 600; display: block; margin-bottom: 0.6rem; }
+.hero-title-p { font-size: 2rem; font-weight: 700; line-height: 1.1; margin-bottom: 1rem; word-wrap: break-word; }
+.hero-subtitle-p { font-size: 0.9rem; opacity: 0.9; margin-bottom: 1.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.hero-btn-p { display: inline-block; padding: 0.6rem 1.4rem; border: 2px solid #fff; border-radius: 6px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* --- CARD PREVIEW --- */
+.card-preview-stage { display: flex; justify-content: center; padding: 1.5rem 0; }
+.card-preview-card { width: 190px; border: 1px solid #e2e8f0; overflow: hidden; transition: all 0.3s ease; }
+.card-preview-img { width: 100%; height: 150px; background: linear-gradient(135deg, #f0e6e0 0%, #e8d0c8 100%); position: relative; }
+.card-preview-badge { position: absolute; top: 8px; right: 8px; color: #fff; font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+.card-preview-body { padding: 0.8rem; }
+.card-preview-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem; }
+.card-preview-price { font-size: 1rem; font-weight: 800; margin-bottom: 0.6rem; }
+.card-preview-stock { font-size: 0.72rem; color: #94a3b8; margin-bottom: 0.8rem; }
+.card-preview-btn { font-size: 0.75rem; font-weight: 700; text-align: center; padding: 0.5rem; border-radius: 6px; }
+
+/* --- PRESETS --- */
+.presets-list { display: flex; flex-direction: column; gap: 0.7rem; }
+.preset-item { 
+    display: flex; align-items: center; justify-content: space-between; 
+    padding: 0.7rem 0.9rem; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; 
+}
+.preset-info { display: flex; flex-direction: column; }
+.preset-name { font-size: 0.9rem; font-weight: 600; color: #1e293b; }
+.preset-meta { font-size: 0.72rem; color: #64748b; }
+.btn-preset-apply { background: #ecfdf5; border: 1px solid #10b981; color: #065f46; font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 6px; cursor: pointer; }
+.btn-preset-delete { background: #fef2f2; border: 1px solid #f87171; color: #991b1b; padding: 0.3rem 0.5rem; border-radius: 6px; cursor: pointer; }
+.preset-save-wrap { display: flex; gap: 0.6rem; }
+.preset-name-input { flex: 1; padding: 0.5rem 0.8rem; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 0.85rem; }
+.btn-save-preset { background: #64748b; color: #fff; border: none; padding: 0.5rem 0.9rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+
+/* --- FOOTER SAVE --- */
+.form-footer { 
+    margin-top: 2rem; padding: 1.5rem; background: #fff; border: 1px solid #cbd5e1; border-radius: 12px;
+    position: sticky; bottom: 1.5rem; z-index: 10; display: flex; justify-content: flex-end;
+    box-shadow: 0 -10px 20px -5px rgba(0,0,0,0.05);
+}
+.btn-save { 
+    background: #c8a4a0; color: #fff; border: none; padding: 0.9rem 2.5rem; border-radius: 10px; 
+    font-size: 1rem; font-weight: 700; cursor: pointer; transition: 0.2s; 
+    box-shadow: 0 4px 12px rgba(200, 164, 160, 0.4);
+}
+.btn-save:hover { background: #b08880; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(200, 164, 160, 0.5); }
+.btn-save:active { transform: translateY(0); }
+
+/* --- MISC --- */
+.subsection-label { font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.8rem; letter-spacing: 0.05em; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; }
+.preset-msg { margin-top: 0.8rem; font-size: 0.85rem; font-weight: 600; text-align: center; }
+.preset-msg.success { color: #059669; }
+.preset-msg.error { color: #dc2626; }
 </style>
 
 <script>
-const shadowMapCSS = { none:'none', sm:'0 1px 3px rgba(0,0,0,0.08)', md:'0 4px 12px rgba(0,0,0,0.12)', lg:'0 8px 24px rgba(0,0,0,0.18)' };
-const radiusMapCSS = { none:'0px', sm:'4px', md:'8px', lg:'16px', full:'24px' };
-const btnRadiusMap = { none:'0px', sm:'4px', md:'8px', lg:'16px', full:'9999px' };
-const fontSizeMap  = { sm:{title:'.8rem',price:'.9rem'}, md:{title:'.85rem',price:'1rem'}, lg:{title:'1rem',price:'1.15rem'}, xl:{title:'1.15rem',price:'1.3rem'} };
+/* --- TABS LOGIC --- */
+function showTab(id) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById(id).classList.add('active');
+    document.querySelector(`[data-tab="${id}"]`).classList.add('active');
+    
+    // Guardar pestaña actual en localStorage (opcional)
+    localStorage.setItem('activeFrontTab', id);
+}
 
-const colorPairs = [
-    {picker:'pickerPrimary',hex:'hexPrimary',dot:'previewPrimary'},
-    {picker:'pickerBackground',hex:'hexBackground',dot:'previewBackground'},
-    {picker:'pickerText',hex:'hexText',dot:'previewText'},
-    {picker:'pickerNavbarBg',hex:'hexNavbarBg',dot:'previewNavbarBg'},
-    {picker:'pickerNavbarText',hex:'hexNavbarText',dot:'previewNavbarText'},
-    {picker:'pickerFooterBg',hex:'hexFooterBg',dot:'previewFooterBg'},
-    {picker:'pickerFooterText',hex:'hexFooterText',dot:'previewFooterText'},
-    {picker:'pickerHeroBackground',hex:'hexHeroBackground',dot:'previewHeroBackground'},
-    {picker:'pickerCardBg',hex:'hexCardBg',dot:'previewCardBg',livePreview:true},
-    {picker:'pickerCardText',hex:'hexCardText',dot:'previewCardText',livePreview:true},
-    {picker:'pickerCardPrice',hex:'hexCardPrice',dot:'previewCardPrice',livePreview:true},
-    {picker:'pickerCardBtnBg',hex:'hexCardBtnBg',dot:'previewCardBtnBg',livePreview:true},
-    {picker:'pickerCardBtnText',hex:'hexCardBtnText',dot:'previewCardBtnText',livePreview:true},
-    {picker:'pickerSaleBadge',hex:'hexSaleBadge',dot:'previewSaleBadge',livePreview:true},
-];
-
-colorPairs.forEach(({picker,hex,dot,livePreview}) => {
-    const pEl=document.getElementById(picker), hEl=document.getElementById(hex), dEl=document.getElementById(dot);
-    if(!pEl||!hEl||!dEl) return;
-    pEl.addEventListener('input',()=>{ hEl.value=pEl.value.toUpperCase(); dEl.style.background=pEl.value; if(livePreview) updateCardPreview(); });
-    hEl.addEventListener('input',()=>{ const v=hEl.value.trim(); if(/^#[0-9A-Fa-f]{6}$/.test(v)){pEl.value=v;dEl.style.background=v;if(livePreview) updateCardPreview();} });
-    hEl.addEventListener('blur',()=>{ hEl.value=hEl.value.toUpperCase(); });
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        showTab(btn.dataset.tab);
+    });
 });
 
-const fontSelect=document.getElementById('fontFamily');
-const prevText=document.getElementById('fontPreviewText');
-const prevSub=document.getElementById('fontPreviewSubtext');
-function updateFont(){ const f=fontSelect.value; prevText.style.fontFamily=f; prevSub.style.fontFamily=f; }
-updateFont(); fontSelect.addEventListener('change',updateFont);
+// Recuperar pestaña al recargar
+const lastTab = localStorage.getItem('activeFrontTab');
+if (lastTab && document.getElementById(lastTab)) {
+    showTab(lastTab);
+}
 
-function getVal(id){ const el=document.getElementById(id); return el?el.value:''; }
-function getHex(id){ const el=document.getElementById(id); return el?el.value:'#000000'; }
+/* --- COLOR SYNC --- */
+const colorPairs = [
+    {picker:'pickerPrimary', hex:'hexPrimary'},
+    {picker:'pickerBackground', hex:'hexBackground'},
+    {picker:'pickerText', hex:'hexText'},
+    {picker:'pickerHeroBackground', hex:'hexHeroBackground', preview: 'hero'},
+    {picker:'pickerGradFrom', hex:'hexGradFrom', preview: 'hero'},
+    {picker:'pickerGradTo', hex:'hexGradTo', preview: 'hero'},
+    {picker:'pickerNavbarBg', hex:'hexNavbarBg', preview: 'navfoot'},
+    {picker:'pickerNavbarText', hex:'hexNavbarText', preview: 'navfoot'},
+    {picker:'pickerFooterBg', hex:'hexFooterBg', preview: 'navfoot'},
+    {picker:'pickerFooterText', hex:'hexFooterText', preview: 'navfoot'},
+    {picker:'pickerCardBg', hex:'hexCardBg', preview: 'card'},
+    {picker:'pickerCardText', hex:'hexCardText', preview: 'card'},
+    {picker:'pickerCardPrice', hex:'hexCardPrice', preview: 'card'},
+    {picker:'pickerCardBtnBg', hex:'hexCardBtnBg', preview: 'card'},
+    {picker:'pickerSaleBadge', hex:'hexSaleBadge', preview: 'card'},
+];
 
-function updateCardPreview(){
-    const shadow=getVal('cardShadow'), radius=getVal('cardRadius'), btnRadius=getVal('cardBtnRadius');
-    const showStock=document.getElementById('cardShowStock').checked, layout=getVal('cardLayout');
-    const card=document.getElementById('cardPreview'), img=document.getElementById('cardPreviewImg');
-    const body=document.getElementById('cardPreviewBody'), name=document.getElementById('cardPreviewName');
-    const price=document.getElementById('cardPreviewPrice'), stock=document.getElementById('cardPreviewStock');
-    const btn=document.getElementById('cardPreviewBtn'), badge=document.getElementById('cardPreviewBadge');
+colorPairs.forEach(({picker, hex, preview}) => {
+    const pEl = document.getElementById(picker);
+    const hEl = document.getElementById(hex);
+    const dot = document.getElementById('preview' + picker.replace('picker',''));
 
-    body.style.background=getHex('hexCardBg');
-    name.style.color=getHex('hexCardText');
-    price.style.color=getHex('hexCardPrice');
-    btn.style.background=getHex('hexCardBtnBg');
-    btn.style.color=getHex('hexCardBtnText');
-    badge.style.background=getHex('hexSaleBadge');
+    if (!pEl || !hEl) return;
 
-    card.style.boxShadow=shadowMapCSS[shadow]||'none';
-    const r=radiusMapCSS[radius]||'0px';
-    card.style.borderRadius=r;
-    btn.style.borderRadius=btnRadiusMap[btnRadius]||'8px';
-    stock.style.display=showStock?'block':'none';
+    const sync = (val) => {
+        const v = val.toUpperCase();
+        hEl.value = v;
+        if (dot) dot.style.background = v;
+        if (preview === 'hero') updateHeroPreview();
+        if (preview === 'navfoot') updateNavFootPreview();
+        if (preview === 'card') updateCardPreview();
+    };
 
-    const fsTitle=fontSizeMap[document.querySelector('[name="fontSizeTitle"]')?.value||'md'];
-    const fsPrice=fontSizeMap[document.querySelector('[name="fontSizePrice"]')?.value||'lg'];
-    if(fsTitle) name.style.fontSize=fsTitle.title;
-    if(fsPrice) price.style.fontSize=fsPrice.price;
+    pEl.addEventListener('input', () => sync(pEl.value));
+    hEl.addEventListener('input', () => {
+        if (/^#[0-9A-F]{6}$/i.test(hEl.value)) {
+            pEl.value = hEl.value;
+            sync(hEl.value);
+        }
+    });
+});
 
-    if(layout==='compact'){
-        card.style.display='flex'; card.style.flexDirection='row'; card.style.width='280px';
-        img.style.width='90px'; img.style.height='90px'; img.style.borderRadius=`${r} 0 0 ${r}`;
-        img.style.flexShrink='0'; body.style.padding='.5rem';
+/* --- HERO PREVIEW --- */
+function updateHeroPreview() {
+    const title = document.querySelector('[name="heroTitle"]').value || document.querySelector('[name="brandStoreName"]').value;
+    const subtitle = document.querySelector('[name="heroSubtitle"]').value;
+    const eyebrow = document.querySelector('[name="heroEyebrow"]').value;
+    const cta = document.querySelector('[name="heroCtaLabel"]').value;
+    const opacity = document.getElementById('heroOverlayOpacity').value;
+    
+    document.getElementById('heroTitlePreview').textContent = title;
+    document.getElementById('heroSubtitlePreview').textContent = subtitle;
+    document.getElementById('heroEyebrowPreview').textContent = eyebrow;
+    document.getElementById('heroCtaLabelPreview').textContent = cta;
+    document.getElementById('overlayOpacityVal').textContent = opacity + '%';
+    document.getElementById('heroOverlayPreview').style.background = `rgba(0,0,0,${opacity/100})`;
+
+    const stage = document.getElementById('heroPreviewStage');
+    const useGrad = document.getElementById('heroUseGradient').checked;
+
+    if (useGrad) {
+        const from = document.getElementById('hexGradFrom').value;
+        const to = document.getElementById('hexGradTo').value;
+        const angle = document.getElementById('heroGradientAngle').value;
+        stage.style.background = `linear-gradient(${angle}deg, ${from}, ${to})`;
+        document.getElementById('gradAngleVal').textContent = angle + '°';
     } else {
-        card.style.display=''; card.style.flexDirection=''; card.style.width='180px';
-        img.style.width='100%'; img.style.height='140px'; img.style.borderRadius=`${r} ${r} 0 0`;
-        img.style.flexShrink=''; body.style.padding='.7rem';
+        stage.style.background = document.getElementById('hexHeroBackground').value;
     }
 }
 
-['cardShadow','cardRadius','cardBtnRadius','cardShowStock','cardLayout'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.addEventListener('change',updateCardPreview);
+document.getElementById('heroUseGradient').addEventListener('change', function() {
+    document.getElementById('heroSolidSection').style.display = this.checked ? 'none' : 'block';
+    document.getElementById('heroGradientSection').style.display = this.checked ? 'block' : 'none';
+    updateHeroPreview();
 });
-document.querySelectorAll('[name="fontSizeTitle"],[name="fontSizePrice"]').forEach(el=>el.addEventListener('change',updateCardPreview));
-updateCardPreview();
 
-function showPresetMsg(msg,type){ const el=document.getElementById('presetMsg'); el.textContent=msg; el.className='preset-msg '+type; el.style.display='block'; setTimeout(()=>{el.style.display='none';},3500); }
+['heroTitle','heroSubtitle','heroEyebrow','heroCtaLabel','brandStoreName'].forEach(name => {
+    document.querySelector(`[name="${name}"]`).addEventListener('input', updateHeroPreview);
+});
+document.getElementById('heroOverlayOpacity').addEventListener('input', updateHeroPreview);
+document.getElementById('heroGradientAngle').addEventListener('input', updateHeroPreview);
 
-async function savePreset(){
-    const name=document.getElementById('presetName').value.trim();
-    if(!name){showPresetMsg('Escribí un nombre para el preset.','error');return;}
-    const payload={name,shadow:getVal('cardShadow'),radius:getVal('cardRadius'),btnRadius:getVal('cardBtnRadius'),showStock:document.getElementById('cardShowStock').checked,layout:getVal('cardLayout')};
-    try{
-        const resp=await fetch('/owner/front/card-presets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-        const data=await resp.json();
-        if(!resp.ok){showPresetMsg(data.error||'Error al guardar.','error');return;}
-        document.getElementById('presetName').value=''; renderPresets(data.cardPresets); showPresetMsg('✅ Preset guardado.','success');
-    }catch{showPresetMsg('Error de red.','error');}
+/* --- NAV/FOOT PREVIEW --- */
+function updateNavFootPreview() {
+    const store = document.querySelector('[name="brandStoreName"]').value;
+    const tagline = document.querySelector('[name="brandTagline"]').value;
+    
+    document.getElementById('navbarBrandPreview').textContent = store;
+    document.getElementById('footerBrandPreview').textContent = store;
+    document.getElementById('footerTaglinePreview').textContent = tagline;
+    
+    document.getElementById('navbarPreview').style.background = document.getElementById('hexNavbarBg').value;
+    document.getElementById('navbarPreview').style.color = document.getElementById('hexNavbarText').value;
+    document.getElementById('footerPreview').style.background = document.getElementById('hexFooterBg').value;
+    document.getElementById('footerPreview').style.color = document.getElementById('hexFooterText').value;
+}
+document.querySelector('[name="brandStoreName"]').addEventListener('input', updateNavFootPreview);
+document.querySelector('[name="brandTagline"]').addEventListener('input', updateNavFootPreview);
+
+/* --- CARD PREVIEW --- */
+const shadowMap = { none:'none', sm:'0 2px 8px rgba(0,0,0,0.06)', md:'0 4px 15px rgba(0,0,0,0.1)', lg:'0 8px 30px rgba(0,0,0,0.15)' };
+const radiusMap = { none:'0px', sm:'4px', md:'12px', lg:'20px', full:'32px' };
+const btnMap = { none:'0px', md:'8px', full:'99px' };
+
+function updateCardPreview() {
+    const shadow = document.getElementById('cardShadow').value;
+    const radius = document.getElementById('cardRadius').value;
+    const btnRad = document.getElementById('cardBtnRadius').value;
+    const showStock = document.getElementById('cardShowStock').checked;
+    const layout = document.getElementById('cardLayout').value;
+
+    const card = document.getElementById('cardPreview');
+    const btn = document.getElementById('cardPreviewBtn');
+    const body = document.getElementById('cardPreviewBody');
+
+    card.style.boxShadow = shadowMap[shadow];
+    card.style.borderRadius = radiusMap[radius];
+    document.getElementById('cardPreviewImg').style.borderRadius = layout === 'vertical' ? `${radiusMap[radius]} ${radiusMap[radius]} 0 0` : `${radiusMap[radius]} 0 0 ${radiusMap[radius]}`;
+    btn.style.borderRadius = btnMap[btnRad];
+    document.getElementById('cardPreviewStock').style.display = showStock ? 'block' : 'none';
+
+    body.style.background = document.getElementById('hexCardBg').value;
+    document.getElementById('cardPreviewName').style.color = document.getElementById('hexCardText').value;
+    document.getElementById('cardPreviewPrice').style.color = document.getElementById('hexCardPrice').value;
+    btn.style.background = document.getElementById('hexCardBtnBg').value;
+    document.getElementById('cardPreviewBadge').style.background = document.getElementById('hexSaleBadge').value;
+
+    if (layout === 'compact') {
+        card.style.display = 'flex'; card.style.width = '300px';
+        document.getElementById('cardPreviewImg').style.width = '100px';
+        document.getElementById('cardPreviewImg').style.height = 'auto';
+    } else {
+        card.style.display = 'block'; card.style.width = '190px';
+        document.getElementById('cardPreviewImg').style.width = '100%';
+        document.getElementById('cardPreviewImg').style.height = '150px';
+    }
+}
+['cardShadow','cardRadius','cardBtnRadius','cardShowStock','cardLayout'].forEach(id => {
+    document.getElementById(id).addEventListener('change', updateCardPreview);
+});
+
+/* --- PRESETS --- */
+async function savePreset() {
+    const name = document.getElementById('presetName').value.trim();
+    if (!name) return alert('Por favor, ingresá un nombre para el preset.');
+    
+    const payload = {
+        name,
+        shadow: document.getElementById('cardShadow').value,
+        radius: document.getElementById('cardRadius').value,
+        btnRadius: document.getElementById('cardBtnRadius').value,
+        showStock: document.getElementById('cardShowStock').checked,
+        layout: document.getElementById('cardLayout').value
+    };
+
+    try {
+        const res = await fetch('/owner/front/card-presets', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok) location.reload(); else alert(data.error || 'Error al guardar');
+    } catch { alert('Error de red'); }
 }
 
-async function deletePreset(index){
-    if(!confirm('¿Eliminar este preset?')) return;
-    try{
-        const resp=await fetch(`/owner/front/card-presets/${index}`,{method:'DELETE'});
-        const data=await resp.json();
-        if(!resp.ok){showPresetMsg(data.error||'Error.','error');return;}
-        renderPresets(data.cardPresets); showPresetMsg('🗑️ Preset eliminado.','success');
-    }catch{showPresetMsg('Error de red.','error');}
+async function deletePreset(index) {
+    if (!confirm('¿Eliminar este preset?')) return;
+    try {
+        const res = await fetch(`/owner/front/card-presets/${index}`, { method: 'DELETE' });
+        if (res.ok) location.reload();
+    } catch { alert('Error de red'); }
 }
 
-function applyPreset(btn){
-    const item=btn.closest('.preset-item');
-    document.getElementById('cardShadow').value=item.dataset.shadow;
-    document.getElementById('cardRadius').value=item.dataset.radius;
-    document.getElementById('cardBtnRadius').value=item.dataset.btnradius||'md';
-    document.getElementById('cardLayout').value=item.dataset.layout;
-    document.getElementById('cardShowStock').checked=item.dataset.showstock==='true';
+function applyPreset(btn) {
+    const item = btn.closest('.preset-item').dataset;
+    document.getElementById('cardShadow').value = item.shadow;
+    document.getElementById('cardRadius').value = item.radius;
+    document.getElementById('cardBtnRadius').value = item.btnradius;
+    document.getElementById('cardLayout').value = item.layout;
+    document.getElementById('cardShowStock').checked = item.showstock === 'true';
     updateCardPreview();
-    showPresetMsg('✅ Preset aplicado. Guardá los cambios para confirmar.','success');
 }
 
-function renderPresets(presets){
-    const list=document.getElementById('presetsList'), btn=document.getElementById('btnSavePreset');
-    if(!presets||presets.length===0){list.innerHTML='<div class="preset-empty">Todavía no tenés presets guardados.</div>';btn.disabled=false;return;}
-    list.innerHTML=presets.map((p,i)=>`<div class="preset-item" data-index="${i}" data-shadow="${p.shadow}" data-radius="${p.radius}" data-showstock="${p.showStock}" data-layout="${p.layout}" data-btnradius="${p.btnRadius||'md'}"><div class="preset-info"><span class="preset-name">${p.name}</span><span class="preset-meta">Sombra: ${p.shadow} · Bordes: ${p.radius} · Botón: ${p.btnRadius||'md'} · Layout: ${p.layout}</span></div><div class="preset-actions"><button type="button" class="btn-preset-apply" onclick="applyPreset(this)">✅ Aplicar</button><button type="button" class="btn-preset-delete" onclick="deletePreset(${i})">🗑️</button></div></div>`).join('');
-    btn.disabled=presets.length>=3;
-}
+/* --- INIT --- */
+updateHeroPreview();
+updateNavFootPreview();
+updateCardPreview();
 </script>
