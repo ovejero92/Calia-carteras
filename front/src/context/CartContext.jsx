@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect, useState } from 'react';
+import { effectiveUnitPrice } from '../utils/pricing';
 
 const CartContext = createContext();
 
@@ -88,12 +88,7 @@ export function CartProvider({ children }) {
   }, [state]);
 
   const addItem = (product, quantity = 1) => {
-    const discountPct = Number(product.discount) || 0;
-    const list = Number(product.price) || 0;
-    const unitPrice =
-      discountPct > 0
-        ? Math.round(list * (1 - discountPct / 100) * 100) / 100
-        : list;
+    const unitPrice = effectiveUnitPrice(product);
 
     dispatch({
       type: 'ADD_ITEM',

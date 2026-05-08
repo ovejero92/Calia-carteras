@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import api from '../services/api';
+import { getApiErrorMessage } from '../utils/apiErrors';
+import { toast } from 'sonner';
 import { CreditCardIcon, TruckIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 const Checkout = () => {
   const { items, total, clearCart } = useCart();
   const navigate = useNavigate();
+  const idempotencyKeyRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     userName: '',
@@ -82,7 +85,12 @@ const Checkout = () => {
     e.preventDefault();
 
     if (!validateForm()) {
+      toast.error('Revisá los campos marcados antes de continuar.');
       return;
+    }
+
+    if (!idempotencyKeyRef.current) {
+      idempotencyKeyRef.current = crypto.randomUUID();
     }
 
     setLoading(true);
@@ -103,8 +111,9 @@ const Checkout = () => {
           status: 'activo'
         });
       } catch (registerError) {
+        const regMsg = getApiErrorMessage(registerError);
         if (registerError.response?.status !== 400 || !registerError.response?.data?.error?.includes('Ya existe')) {
-          console.warn('Error registering user:', registerError);
+          toast.warning(regMsg, { description: 'Seguimos con tu pedido de todas formas.' });
         }
       }
 
@@ -113,6 +122,8 @@ const Checkout = () => {
         userEmail: formData.userEmail,
         userPhone: formData.userPhone,
         userAddress: fullAddress,
+        deliveryMethod: formData.deliveryMethod,
+        shippingFee: 0,
         items: items.map(item => ({
           productId: item.id,
           productName: item.name,
@@ -126,10 +137,19 @@ const Checkout = () => {
         notes: formData.notes
       };
 
-      const response = await api.post('/orders', orderData);
+      const response = await api.post('/orders', orderData, {
+        headers: { 'Idempotency-Key': idempotencyKeyRef.current },
+      });
 
       if (response.data.status === 'success') {
+        idempotencyKeyRef.current = null;
         clearCart();
+        toast.success(
+          response.data.idempotentReplay
+            ? 'Este pedido ya estaba registrado.'
+            : '¡Pedido confirmado!',
+          { description: `Nº ${response.data.data?.saleNumber || ''}` }
+        );
         navigate('/order-tracking', {
           state: {
             orderId: response.data.data.id,
@@ -140,7 +160,15 @@ const Checkout = () => {
       }
     } catch (error) {
       console.error('Error creating order:', error);
-      alert('Error al procesar el pedido. Por favor intenta nuevamente.');
+      const msg = getApiErrorMessage(error);
+      const isStockOrTotal =
+        /stock|total|precios actuales|insuficiente/i.test(msg);
+      toast.error(msg, {
+        description: isStockOrTotal
+          ? 'Actualizá el carrito desde el catálogo o vaciá cantidades y volvé a intentar.'
+          : undefined,
+        duration: 6000,
+      });
     } finally {
       setLoading(false);
     }

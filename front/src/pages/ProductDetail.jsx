@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useCart } from '../context/CartContext';
+import { effectiveUnitPrice } from '../utils/pricing';
+import { toast } from 'sonner';
 import {
   ShoppingBagIcon,
   ArrowLeftIcon,
@@ -13,6 +15,8 @@ import {
   CreditCardIcon,
 } from '@heroicons/react/24/outline';
 import ProductCard from '../components/ProductCard';
+
+const HIDDEN_KEYS = ['género', 'genero', 'marca', 'brand', 'gender'];
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -69,6 +73,10 @@ const ProductDetail = () => {
     setAddingToCart(true);
     try {
       addItem(product, quantity);
+      const lineTotal = effectiveUnitPrice(product) * quantity;
+      toast.success(`${quantity > 1 ? `${quantity} × ` : ''}${product.name} — ${formatPrice(lineTotal)}`, {
+        description: 'Podés revisar el carrito cuando quieras',
+      });
       setAdded(true);
       setTimeout(() => setAdded(false), 2000);
     } finally {
@@ -103,12 +111,9 @@ const ProductDetail = () => {
       ? product.images
       : [product.image || '/placeholder-product.svg'];
 
-  const hasDiscount = Boolean(product.discount && product.discount > 0);
-  const finalPrice = hasDiscount
-    ? product.price * (1 - product.discount / 100)
-    : product.price;
+  const finalPrice = effectiveUnitPrice(product);
 
-  const HIDDEN_KEYS = ['género', 'genero', 'marca', 'brand', 'gender'];
+  const hasDiscount = Boolean(product.discount && product.discount > 0);
   const visibleCharacteristics = product.characteristics
     ? Object.entries(product.characteristics).filter(
         ([key]) => !HIDDEN_KEYS.includes(key.toLowerCase().trim())

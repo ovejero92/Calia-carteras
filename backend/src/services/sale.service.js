@@ -269,4 +269,118 @@ export const markSalesAsRead = async () => {
     }
 };
 
+/**
+ * Agregaciones para gráficos del dashboard (solo servidor; no envía ventas crudas al navegador).
+ * Incluye hasta `maxDocs` ventas completadas (las más recientes por orden de lectura).
+ */
+export async function getSalesAnalyticsAggregation({ maxDocs = 1800, monthsBack = 14 } = {}) {
+    const empty = {
+        monthlyLabels: [],
+        monthlyRevenue: [],
+        monthlyCount: [],
+        deliveryLabels: [],
+        deliveryRevenue: [],
+        topProducts: [],
+        truncated: false,
+        docCount: 0,
+    };
+
+    if (!db) return empty;
+
+    try {
+        const snapshot = await db.collection("sales").where("status", "==", "completada").limit(maxDocs).get();
+        const byMonth = new Map();
+        const byMonthCount = new Map();
+        const byDelivery = new Map();
+        const byProduct = new Map();
+        let totalRev = 0;
+
+        snapshot.docs.forEach((doc) => {
+            const d = doc.data();
+            const created = d.createdAt?.toDate ? d.createdAt.toDate() : new Date(d.createdAt || Date.now());
+            const y = created.getFullYear();
+            const m = created.getMonth() + 1;
+            const mk = `${y}-${String(m).padStart(2, "0")}`;
+            const total = parseFloat(d.total) || 0;
+            totalRev += total;
+            byMonth.set(mk, (byMonth.get(mk) || 0) + total);
+            byMonthCount.set(mk, (byMonthCount.get(mk) || 0) + 1);
+
+            let del = d.deliveryMethod;
+            if (!del) {
+                const addr = String(d.userAddress || "").toLowerCase();
+                del = addr.includes("retiro") ? "retiro" : "envio";
+            }
+            byDelivery.set(del, (byDelivery.get(del) || 0) + total);
+
+            (d.items || []).forEach((item) => {
+                const pid = item.productId || item.id || "unknown";
+                const cur = byProduct.get(pid) || {
+                    productId: pid,
+                    productName: item.productName || pid,
+                    revenue: 0,
+                    quantity: 0,
+                };
+                cur.revenue += parseFloat(item.subtotal) || 0;
+                cur.quantity += parseInt(item.quantity, 10) || 0;
+                byProduct.set(pid, cur);
+            });
+        });
+
+        const now = new Date();
+        const monthlyLabels = [];
+        const monthlyRevenue = [];
+        const monthlyCount = [];
+        for (let i = monthsBack - 1; i >= 0; i--) {
+            const dt = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const mk = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`;
+            monthlyLabels.push(
+                dt.toLocaleDateString("es-AR", { month: "short", year: "2-digit" })
+            );
+            monthlyRevenue.push(Math.round((byMonth.get(mk) || 0) * 100) / 100);
+            monthlyCount.push(byMonthCount.get(mk) || 0);
+        }
+
+        const deliveryOrder = ["retiro", "envio"];
+        const deliveryLabels = [];
+        const deliveryRevenue = [];
+        deliveryOrder.forEach((k) => {
+            if (byDelivery.has(k)) {
+                deliveryLabels.push(k === "retiro" ? "Retiro" : "Envío");
+                deliveryRevenue.push(Math.round((byDelivery.get(k) || 0) * 100) / 100);
+            }
+        });
+        byDelivery.forEach((v, k) => {
+            if (!deliveryOrder.includes(k)) {
+                deliveryLabels.push(String(k));
+                deliveryRevenue.push(Math.round(v * 100) / 100);
+            }
+        });
+
+        const topProducts = Array.from(byProduct.values())
+            .sort((a, b) => (b.revenue || 0) - (a.revenue || 0))
+            .slice(0, 8)
+            .map((p) => ({
+                name: p.productName,
+                revenue: Math.round((p.revenue || 0) * 100) / 100,
+                quantity: p.quantity || 0,
+            }));
+
+        return {
+            monthlyLabels,
+            monthlyRevenue,
+            monthlyCount,
+            deliveryLabels,
+            deliveryRevenue,
+            topProducts,
+            truncated: snapshot.size >= maxDocs,
+            docCount: snapshot.size,
+            totalSampleRevenue: Math.round(totalRev * 100) / 100,
+        };
+    } catch (err) {
+        console.error("getSalesAnalyticsAggregation:", err.message);
+        return { ...empty, error: err.message };
+    }
+}
+
 export { generateSaleNumber };

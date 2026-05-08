@@ -12,6 +12,7 @@ import OrderTracking from "./pages/OrderTracking";
 import { SettingsProvider } from "./context/SettingsContext";
 import FAQ from "./pages/FAQ";
 import "./App.css";
+import { Toaster } from "sonner";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
               color: "var(--color-text)",
             }}
           >
+            <Toaster richColors closeButton position="top-center" />
             <Header />
             <main className="container mx-auto px-4 py-8">
               <Routes>

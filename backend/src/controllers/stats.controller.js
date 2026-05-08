@@ -1,5 +1,6 @@
 import * as statsService from "../services/stats.service.js";
 import * as saleService from "../services/sale.service.js";
+import { runBackupToStorage } from "../services/backup.service.js";
 
 const buildSalesRange = (query) => {
     const range = query.range || 'last30';
@@ -62,12 +63,21 @@ export const renderDashboard = async (req, res) => {
             };
         }
 
+        let chartAnalytics = null;
+        try {
+            chartAnalytics = await saleService.getSalesAnalyticsAggregation();
+        } catch (err) {
+            console.warn("⚠️ Agregados para gráficos:", err.message);
+            chartAnalytics = { monthlyLabels: [], monthlyRevenue: [], error: err.message };
+        }
+
         res.render('owner/dashboard', {
             titulo: 'Panel de Control',
             user: req.user,
             stats: dashboardStats,
             salesSummary,
-            salesRange
+            salesRange,
+            chartAnalytics
         });
     } catch (error) {
         console.error("❌ Error al renderizar dashboard:", error);
@@ -100,6 +110,7 @@ export const renderDashboard = async (req, res) => {
                 startDate: null,
                 endDate: null
             },
+            chartAnalytics: { monthlyLabels: [], monthlyRevenue: [], monthlyCount: [], deliveryLabels: [], deliveryRevenue: [], topProducts: [] },
             error: "⚠️ Algunos datos no pudieron cargarse. Las funcionalidades principales siguen disponibles."
         });
     }
@@ -198,5 +209,15 @@ export const exportDashboardCsv = async (req, res) => {
     } catch (error) {
         console.error("Error al exportar métricas del dashboard CSV:", error);
         res.status(500).send("Error al exportar las métricas.");
+    }
+};
+
+export const triggerBackupStorage = async (req, res) => {
+    try {
+        const result = await runBackupToStorage();
+        res.json({ ok: true, ...result });
+    } catch (error) {
+        console.error("Backup Storage:", error);
+        res.status(500).json({ error: error.message });
     }
 };

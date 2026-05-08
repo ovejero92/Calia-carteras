@@ -4,7 +4,7 @@ import verifyFirebaseToken from "../middlewares/verifyFirebaseToken.js";
 import { renderProducts, createProduct, createBulkProducts, deleteProduct, updateProduct, searchProducts } from "../controllers/product.controller.js";
 import { renderUsers, createUser, updateUser, deleteUser, getUserById } from "../controllers/user.controller.js";
 import { renderSales, createSale, updateSale, deleteSale, getSaleById, acceptSale, rejectSale, exportSalesCsv, getUnreadOrdersCount, markSaleAsRead } from "../controllers/sale.controller.js";
-import { renderDashboard, getStats, exportDashboardCsv } from "../controllers/stats.controller.js";
+import { renderDashboard, getStats, exportDashboardCsv, triggerBackupStorage } from "../controllers/stats.controller.js";
 import { getUsage } from "../controllers/usage.controller.js";
 import { renderFrontSettings, updateFrontSettings, saveCardPreset, deleteCardPreset, saveFaq, updateFaq, deleteFaq } from "../controllers/settings.controller.js";
 import { renderCategories, createCategory, updateCategory, deleteCategory } from "../controllers/category.controller.js";
@@ -33,7 +33,10 @@ router.post('/session', async (req, res) => {
         const { idToken } = req.body;
         if (!idToken) return res.status(400).json({ error: 'Falta token' });
         const decodedToken = await admin.auth().verifyIdToken(idToken);
-        if (decodedToken.email !== process.env.OWNER_EMAIL) {
+        const ownerUid = process.env.OWNER_UID?.trim();
+        const emailOk = decodedToken.email === process.env.OWNER_EMAIL;
+        const uidOk = !ownerUid || decodedToken.uid === ownerUid;
+        if (!emailOk || !uidOk) {
             return res.status(403).json({ error: 'No autorizado' });
         }
         const expiresIn = 60 * 60 * 24 * 5 * 1000;
@@ -60,6 +63,7 @@ router.post('/logout', (req, res) => {
 router.get('/', verifyFirebaseToken, renderDashboard);
 router.get('/stats', verifyFirebaseToken, getStats);
 router.get('/stats/export', verifyFirebaseToken, exportDashboardCsv);
+router.post('/backup-storage', verifyFirebaseToken, triggerBackupStorage);
 router.get('/usage', verifyFirebaseToken, getUsage);
 
 // ── Productos ──────────────────────────────────────────────────────────────────

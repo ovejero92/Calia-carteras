@@ -7,6 +7,8 @@ import { userSchema } from "../schemas/user.schema.js";
 import { saleSchema } from "../schemas/sale.schema.js";
 import { getPublicFrontSettings } from "../controllers/settings.controller.js";
 import { getPublicCategories } from "../controllers/category.controller.js";
+import { registerPostLimiter, ordersPostLimiter } from "../middlewares/rateLimit.middleware.js";
+import { createPublicOrderIdempotent } from "../services/orderIdempotency.service.js";
 
 const router = Router();
 
@@ -50,7 +52,7 @@ router.get('/products/:id', async (req, res) => {
 });
 
 // ── Auth ───────────────────────────────────────────────────────────────────────
-router.post('/register', async (req, res) => {
+router.post('/register', registerPostLimiter, async (req, res) => {
     try {
         const result = userSchema.safeParse({ ...req.body, role: 'cliente', status: 'activo' });
         if (!result.success) {
@@ -69,7 +71,7 @@ router.post('/register', async (req, res) => {
 });
 
 // ── Pedidos ────────────────────────────────────────────────────────────────────
-router.post('/orders', async (req, res) => {
+router.post('/orders', ordersPostLimiter, async (req, res) => {
     try {
         const result = saleSchema.safeParse({ ...req.body, status: 'pendiente' });
         if (!result.success) {
@@ -77,11 +79,23 @@ router.post('/orders', async (req, res) => {
                 errors: result.error.errors.map(err => ({ path: err.path.join('.'), message: err.message }))
             });
         }
-        const order = await saleService.createSale(result.data, { source: "public_api" });
-        res.status(201).json({ status: "success", message: "Pedido creado", data: order });
+        const idemKey = req.get('Idempotency-Key') || req.get('idempotency-key') || req.body.idempotencyKey;
+        const { order, idempotentReplay } = await createPublicOrderIdempotent(result.data, {
+            idempotencyKey: idemKey,
+            source: "public_api",
+        });
+        res.status(idempotentReplay ? 200 : 201).json({
+            status: "success",
+            message: idempotentReplay ? "Pedido ya registrado" : "Pedido creado",
+            data: order,
+            idempotentReplay,
+        });
     } catch (error) {
         console.error("Error creando pedido:", error);
-        res.status(500).json({ error: error.message });
+        const msg = error.message || "Error al crear el pedido";
+        const isBiz =
+            /Stock insuficiente|Total del pedido|no coincide|no encontrado|inválido/i.test(msg);
+        res.status(isBiz ? 400 : 500).json({ error: msg });
     }
 });
 

@@ -10,11 +10,15 @@ export default async function verifyFirebaseToken(req, res, next) {
     }
 
     const decodedClaims = await admin.auth().verifySessionCookie(sessionCookie, true);
-    
-    if (decodedClaims.email !== process.env.OWNER_EMAIL) {
-      console.error(`🚫 Acceso denegado para: ${decodedClaims.email}`);
+    const ownerUid = process.env.OWNER_UID?.trim();
+    const emailOk = decodedClaims.email === process.env.OWNER_EMAIL;
+    const uidOk = !ownerUid || decodedClaims.uid === ownerUid;
+
+    if (!emailOk || !uidOk) {
+      console.error(`🚫 Acceso denegado: ${decodedClaims.email} (${decodedClaims.uid})`);
       res.clearCookie('session');
-      return res.status(403).send("<h1>403 - Acceso Prohibido</h1><p>No tienes permisos de administrador.</p>");
+      if (req.accepts('html')) return res.status(403).send("<h1>403 - Acceso Prohibido</h1><p>No tienes permisos de administrador.</p>");
+      return res.status(403).json({ error: 'No autorizado' });
     }
 
     req.user = decodedClaims;

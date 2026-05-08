@@ -8,11 +8,14 @@ import cookieParser from "cookie-parser";
 import handlebars from "express-handlebars"
 import path from "path";
 import { fileURLToPath } from "url";
+import { startBackupCron } from "./jobs/backupCron.js";
+import { runBackupToStorage } from "./services/backup.service.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express()
+app.set("trust proxy", 1);
 app.use(express.json())
 app.use(cookieParser())
 
@@ -91,10 +94,27 @@ app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 app.get('/', (req, res) => res.redirect('/owner/login'));
 
+app.post("/internal/cron/backup", async (req, res) => {
+    const secret = process.env.BACKUP_CRON_SECRET;
+    if (!secret || req.get("x-cron-secret") !== secret) {
+        return res.status(403).json({ error: "Prohibido" });
+    }
+    try {
+        const result = await runBackupToStorage();
+        res.json({ ok: true, ...result });
+    } catch (e) {
+        console.error("[internal/cron/backup]", e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 app.use((req, res) => {
     res.status(404).json({ error: "ruta no encontrada" })
 })
 
 
 const PORT = process.env.PORT || 3000
-app.listen(PORT, () => console.log(`http://localhost:${PORT}`))
+app.listen(PORT, () => {
+    console.log(`http://localhost:${PORT}`);
+    startBackupCron();
+})

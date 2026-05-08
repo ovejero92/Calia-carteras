@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import api from '../services/api';
+import { getApiErrorMessage } from '../utils/apiErrors';
+import { toast } from 'sonner';
 import { CheckCircleIcon, ClockIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 const OrderTracking = () => {
@@ -29,7 +31,7 @@ const OrderTracking = () => {
       }
     } catch (error) {
       console.error('Error fetching orders:', error);
-      alert('Error al buscar pedidos. Verifica el email e intenta nuevamente.');
+      toast.error(getApiErrorMessage(error), { description: 'Verificá el email o intentá más tarde.' });
     } finally {
       setLoading(false);
       setSearched(true);

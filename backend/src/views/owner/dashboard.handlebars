@@ -150,6 +150,40 @@
             </div>
         </div>
 
+        <!-- Gráficos: agregación mensual en servidor (payload acotado) -->
+        <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 4px;">
+                <h2 style="margin: 0; color: #333; font-size: 20px;">📈 Tendencias (ventas completadas)</h2>
+                {{#if chartAnalytics.truncated}}
+                <span style="font-size: 11px; color: #856404; background: #fff3cd; padding: 4px 10px; border-radius: 6px;">Muestra: {{chartAnalytics.docCount}} ventas (tope). Los totales globales siguen en las tarjetas superiores.</span>
+                {{/if}}
+            </div>
+            <p style="margin: 0 0 16px; font-size: 12px; color: #777;">Datos agregados en el servidor para el panel; no se envía el listado crudo de pedidos al navegador.</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+                <div style="min-height: 220px;">
+                    <h3 style="font-size: 14px; color: #555; margin-bottom: 8px;">Ingresos por mes</h3>
+                    <canvas id="chartMonthly"></canvas>
+                </div>
+                <div style="min-height: 220px; max-width: 380px;">
+                    <h3 style="font-size: 14px; color: #555; margin-bottom: 8px;">Retiro vs envío</h3>
+                    <canvas id="chartDelivery"></canvas>
+                </div>
+            </div>
+            <div style="margin-top: 24px;">
+                <h3 style="font-size: 14px; color: #555; margin-bottom: 8px;">Top productos (muestra)</h3>
+                <canvas id="chartProducts" height="140"></canvas>
+            </div>
+            <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #eee; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                <button type="button" onclick="runBackupNow()" style="padding: 8px 14px; border-radius: 8px; border: 1px solid #6f42c1; background: #6f42c1; color: white; cursor: pointer; font-size: 13px;">
+                    ☁️ Backup CSV a Firebase Storage
+                </button>
+                <span id="backup-msg" style="font-size: 12px; color: #666;"></span>
+            </div>
+        </div>
+
+        <script id="chart-analytics-data" type="application/json">{{json chartAnalytics}}</script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
         <!-- Acciones Rápidas -->
         <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
             <h2 style="margin: 0 0 20px; color: #333; font-size: 20px;">⚡ Acciones Rápidas</h2>
@@ -255,6 +289,89 @@
 </div>
 
 <script>
+    function runBackupNow() {
+        const msg = document.getElementById('backup-msg');
+        msg.textContent = 'Subiendo…';
+        fetch('/owner/backup-storage', { method: 'POST', credentials: 'include' })
+            .then(r => r.json().then(j => ({ ok: r.ok, j })))
+            .then(({ ok, j }) => {
+                if (ok && j.files) {
+                    msg.textContent = 'Listo: ' + j.files.join(', ');
+                    msg.style.color = '#28a745';
+                } else {
+                    msg.textContent = j.error || 'Error';
+                    msg.style.color = '#dc3545';
+                }
+            })
+            .catch(() => {
+                msg.textContent = 'Error de red';
+                msg.style.color = '#dc3545';
+            });
+    }
+
+    (function initDashboardCharts() {
+        const el = document.getElementById('chart-analytics-data');
+        if (!el || typeof Chart === 'undefined') return;
+        let A;
+        try { A = JSON.parse(el.textContent); } catch (e) { return; }
+        if (!A || A.error) return;
+
+        const hasMonthly = A.monthlyLabels && A.monthlyLabels.length > 0 && A.monthlyRevenue && A.monthlyRevenue.some(v => v > 0);
+        if (hasMonthly) {
+            new Chart(document.getElementById('chartMonthly'), {
+                type: 'line',
+                data: {
+                    labels: A.monthlyLabels,
+                    datasets: [{
+                        label: 'Ingresos (ARS)',
+                        data: A.monthlyRevenue,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.15)',
+                        fill: true,
+                        tension: 0.25,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        if (A.deliveryLabels && A.deliveryLabels.length && A.deliveryRevenue) {
+            new Chart(document.getElementById('chartDelivery'), {
+                type: 'doughnut',
+                data: {
+                    labels: A.deliveryLabels,
+                    datasets: [{
+                        data: A.deliveryRevenue,
+                        backgroundColor: ['#43e97b', '#4facfe', '#f093fb', '#ffc107'],
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        if (A.topProducts && A.topProducts.length) {
+            const names = A.topProducts.map(p => (p.name || '').slice(0, 28));
+            const rev = A.topProducts.map(p => p.revenue || 0);
+            new Chart(document.getElementById('chartProducts'), {
+                type: 'bar',
+                data: {
+                    labels: names,
+                    datasets: [{ label: 'Ingresos ARS', data: rev, backgroundColor: '#764ba2' }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true } }
+                }
+            });
+        }
+    })();
+
     function barColor(p) {
         if (p < 50) return '#28a745';
         if (p < 75) return '#ffc107';
