@@ -38,7 +38,13 @@ router.post('/session', async (req, res) => {
         }
         const expiresIn = 60 * 60 * 24 * 5 * 1000;
         const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn });
-        res.cookie('session', sessionCookie, { maxAge: expiresIn, httpOnly: true, secure: false });
+        const isProd = process.env.NODE_ENV === 'production';
+        res.cookie('session', sessionCookie, {
+            maxAge: expiresIn,
+            httpOnly: true,
+            secure: isProd,
+            sameSite: 'lax',
+        });
         return res.json({ status: 'success' });
     } catch (err) {
         return res.status(401).json({ error: 'Auth error', details: err.message });

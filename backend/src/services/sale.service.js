@@ -1,52 +1,29 @@
 import { db } from "../firebase/admin.js";
 import admin from "../firebase/admin.js";
-import * as productService from "./product.service.js";
+import * as orderService from "./order.service.js";
 
-export const createSale = async (saleData) => {
-    try {
-        for (const item of saleData.items) {
-            const product = await productService.getProductById(item.productId);
-            if (!product) {
-                throw new Error(`Producto ${item.productName} no encontrado`);
-            }
-            if (product.stock < item.quantity) {
-                throw new Error(`Stock insuficiente para ${item.productName}. Stock disponible: ${product.stock}`);
-            }
-        }
+export const createSale = async (saleData, opts = {}) => {
+    return orderService.createOrder(saleData, { source: opts.source || "sale.service" });
+};
 
-        const newSale = {
-            ...saleData,
-            saleNumber: await generateSaleNumber(),
-            isRead: false,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        };
+export const updateSale = async (id, saleData, options = {}) => {
+    return orderService.updateOrder(id, saleData, {
+        source: options.source || "sale.service",
+        notifyClientAccept: options.notifyClientAccept === true,
+    });
+};
 
-        const saleRef = await db.collection('sales').add(newSale);
-
-        if (saleData.status === 'completada') {
-            for (const item of saleData.items) {
-                const product = await productService.getProductById(item.productId);
-                const newStock = product.stock - item.quantity;
-                await productService.updateProduct(item.productId, { stock: newStock });
-            }
-        }
-
-        console.log("✅ Venta creada con ID:", saleRef.id);
-        return { id: saleRef.id, ...newSale };
-    } catch (error) {
-        console.error("❌ Error en createSale service:", error);
-        throw error;
-    }
+export const deleteSale = async (id) => {
+    return orderService.deleteOrder(id);
 };
 
 const generateSaleNumber = async () => {
     try {
         const year = new Date().getFullYear();
-        const snapshot = await db.collection('sales')
-            .where('saleNumber', '>=', `V${year}0000`)
-            .where('saleNumber', '<=', `V${year}9999`)
-            .orderBy('saleNumber', 'desc')
+        const snapshot = await db.collection("sales")
+            .where("saleNumber", ">=", `V${year}0000`)
+            .where("saleNumber", "<=", `V${year}9999`)
+            .orderBy("saleNumber", "desc")
             .limit(1)
             .get();
 
@@ -56,7 +33,7 @@ const generateSaleNumber = async () => {
 
         const lastNumber = snapshot.docs[0].data().saleNumber;
         const num = parseInt(lastNumber.substring(5)) + 1;
-        return `V${year}${num.toString().padStart(4, '0')}`;
+        return `V${year}${num.toString().padStart(4, "0")}`;
     } catch (error) {
         return `V${Date.now()}`;
     }
@@ -64,10 +41,10 @@ const generateSaleNumber = async () => {
 
 export const getSales = async (filters = {}) => {
     try {
-        let query = db.collection('sales');
+        let query = db.collection("sales");
         let snapshot;
         if (filters.status) {
-            snapshot = await query.where('status', '==', filters.status).limit(500).get();
+            snapshot = await query.where("status", "==", filters.status).limit(500).get();
         } else {
             snapshot = await query.limit(500).get();
         }
@@ -78,16 +55,14 @@ export const getSales = async (filters = {}) => {
 
         let sales = snapshot.docs.map(doc => {
             const data = doc.data();
-            return {
-                id: doc.id,
-                ...data,
-                createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAt || new Date()),
-                updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : (data.updatedAt || new Date())
-            };
+            return orderService.normalizeOrderDoc(doc.id, data);
         });
 
         if (filters.paymentMethod && !filters.status) {
             sales = sales.filter(sale => sale.paymentMethod === filters.paymentMethod);
+        }
+        if (filters.lifecycle) {
+            sales = sales.filter(sale => sale.orderLifecycle === filters.lifecycle);
         }
         if (filters.userId) {
             sales = sales.filter(sale => sale.userId === filters.userId);
@@ -116,112 +91,74 @@ export const getSales = async (filters = {}) => {
         sales.sort((a, b) => {
             const dateA = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt);
             const dateB = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt);
-            return dateB - dateA; // Descendente
+            return dateB - dateA;
         });
 
         return sales.slice(0, 100);
     } catch (error) {
-        console.error("❌ Error en getSales service:", error);
+        console.error("Error en getSales service:", error);
         throw error;
     }
 };
 
 export const getSaleById = async (id) => {
-    try {
-        const doc = await db.collection('sales').doc(id).get();
-        if (!doc.exists) {
-            return null;
-        }
-
-        const data = doc.data();
-        return {
-            id: doc.id,
-            ...data,
-            createdAt: data.createdAt?.toDate() || new Date(),
-            updatedAt: data.updatedAt?.toDate() || new Date()
-        };
-    } catch (error) {
-        console.error("❌ Error en getSaleById service:", error);
-        throw error;
-    }
+    return orderService.getOrderById(id);
 };
 
-export const updateSale = async (id, saleData) => {
+/** Pedidos de un cliente (consulta indexada por userEmailLower cuando exista). */
+export const getSalesByUserEmail = async (email) => {
+    const raw = (email || "").trim().toLowerCase();
+    if (!raw) return [];
+
     try {
-        const existingSale = await getSaleById(id);
-        if (!existingSale) {
-            throw new Error('Venta no encontrada');
+        let snapshot = await db
+            .collection("sales")
+            .where("userEmailLower", "==", raw)
+            .limit(100)
+            .get();
+
+        if (snapshot.empty) {
+            snapshot = await db.collection("sales").where("userEmail", "==", email.trim()).limit(100).get();
         }
 
-        if (saleData.status && saleData.status !== existingSale.status) {
-            if (existingSale.status === 'completada' && saleData.status !== 'completada') {
-                for (const item of existingSale.items) {
-                    const product = await productService.getProductById(item.productId);
-                    await productService.updateProduct(item.productId, {
-                        stock: product.stock + item.quantity
-                    });
-                }
-            } else if (existingSale.status !== 'completada' && saleData.status === 'completada') {
-                for (const item of existingSale.items) {
-                    const product = await productService.getProductById(item.productId);
-                    if (product.stock < item.quantity) {
-                        throw new Error(`Stock insuficiente para ${item.productName}`);
-                    }
-                    await productService.updateProduct(item.productId, {
-                        stock: product.stock - item.quantity
-                    });
-                }
-            }
-        }
-
-        const updatedData = {
-            ...saleData,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        };
-
-        await db.collection('sales').doc(id).update(updatedData);
-        console.log("✅ Venta actualizada:", id);
-        return true;
-    } catch (error) {
-        console.error("❌ Error en updateSale service:", error);
-        throw error;
-    }
-};
-
-export const deleteSale = async (id) => {
-    try {
-        const sale = await getSaleById(id);
-        if (!sale) {
-            throw new Error('Venta no encontrada');
-        }
-        if (sale.status === 'completada') {
-            for (const item of sale.items) {
-                const product = await productService.getProductById(item.productId);
-                await productService.updateProduct(item.productId, {
-                    stock: product.stock + item.quantity
+        if (snapshot.empty) {
+            const snapAll = await db.collection("sales").limit(300).get();
+            const docs = snapAll.docs.filter((d) => {
+                const em = d.data().userEmail;
+                return em && String(em).trim().toLowerCase() === raw;
+            });
+            return docs
+                .map((doc) => orderService.normalizeOrderDoc(doc.id, doc.data()))
+                .sort((a, b) => {
+                    const da = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt);
+                    const db2 = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt);
+                    return db2 - da;
                 });
-            }
         }
 
-        await db.collection('sales').doc(id).delete();
-        console.log("✅ Venta eliminada:", id);
-        return true;
+        const list = snapshot.docs.map((doc) => orderService.normalizeOrderDoc(doc.id, doc.data()));
+        list.sort((a, b) => {
+            const da = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt);
+            const db2 = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt);
+            return db2 - da;
+        });
+        return list;
     } catch (error) {
-        console.error("❌ Error en deleteSale service:", error);
+        console.error("Error en getSalesByUserEmail:", error);
         throw error;
     }
 };
 
 export const getSaleStats = async (startDate = null, endDate = null) => {
     try {
-        let query = db.collection('sales').where('status', '==', 'completada');
+        let query = db.collection("sales").where("status", "==", "completada");
 
         const snapshot = await query.get();
         let sales = snapshot.docs.map(doc => {
             const data = doc.data();
             return {
                 ...data,
-                createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAt || new Date())
+                createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAt || new Date()),
             };
         });
 
@@ -257,7 +194,7 @@ export const getSaleStats = async (startDate = null, endDate = null) => {
                         productId: item.productId,
                         productName: item.productName,
                         quantity: 0,
-                        revenue: 0
+                        revenue: 0,
                     };
                 }
                 productSales[item.productId].quantity += item.quantity;
@@ -271,13 +208,13 @@ export const getSaleStats = async (startDate = null, endDate = null) => {
 
         const paymentMethods = {};
         sales.forEach(sale => {
-            let method = sale.paymentMethod || 'otro';
+            let method = sale.paymentMethod || "otro";
 
-            if (method === 'tarjeta' && sale.cardType) {
-                if (sale.cardType === 'debito') {
-                    method = 'tarjeta_debito';
-                } else if (sale.cardType === 'credito') {
-                    method = 'tarjeta_credito';
+            if (method === "tarjeta" && sale.cardType) {
+                if (sale.cardType === "debito") {
+                    method = "tarjeta_debito";
+                } else if (sale.cardType === "credito") {
+                    method = "tarjeta_credito";
                 }
             }
 
@@ -294,39 +231,42 @@ export const getSaleStats = async (startDate = null, endDate = null) => {
             totalItems: totalItems || 0,
             averageSale: totalSales > 0 ? (totalRevenue / totalSales) : 0,
             topProducts: topProducts || [],
-            paymentMethods: paymentMethods || {}
+            paymentMethods: paymentMethods || {},
         };
     } catch (error) {
-        console.error("❌ Error en getSaleStats service:", error);
+        console.error("Error en getSaleStats service:", error);
         throw error;
     }
 };
+
 export const getUnreadCount = async () => {
     try {
-        const snapshot = await db.collection('sales').where('isRead', '==', false).get();
+        const snapshot = await db.collection("sales").where("isRead", "==", false).get();
         return snapshot.size;
     } catch (error) {
-        console.error("❌ Error en getUnreadCount service:", error);
+        console.error("Error en getUnreadCount service:", error);
         return 0;
     }
 };
 
 export const markSalesAsRead = async () => {
     try {
-        const snapshot = await db.collection('sales').where('isRead', '==', false).get();
+        const snapshot = await db.collection("sales").where("isRead", "==", false).get();
         if (snapshot.empty) return;
 
         const batch = db.batch();
         snapshot.docs.forEach((doc) => {
-            batch.update(doc.ref, { 
-                isRead: true, 
-                updatedAt: admin.firestore.FieldValue.serverTimestamp() 
+            batch.update(doc.ref, {
+                isRead: true,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             });
         });
 
         await batch.commit();
-        console.log(`✅ Marcadas ${snapshot.size} ventas como leídas`);
+        console.log(`Marcadas ${snapshot.size} ventas como leídas`);
     } catch (error) {
-        console.error("❌ Error en markSalesAsRead service:", error);
+        console.error("Error en markSalesAsRead service:", error);
     }
 };
+
+export { generateSaleNumber };

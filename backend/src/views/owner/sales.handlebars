@@ -46,6 +46,15 @@
                 <option value="tarjeta_credito">Tarjeta de crédito</option>
                 <option value="otro">Otro</option>
             </select>
+            <select id="filterLifecycle" style="padding:10px; border-radius:5px; border:1px solid #ccc;">
+                <option value="">Todas las etapas</option>
+                <option value="pending" {{#if (eq filters.lifecycle "pending")}}selected{{/if}}>Pendiente (ingreso)</option>
+                <option value="confirmed" {{#if (eq filters.lifecycle "confirmed")}}selected{{/if}}>Confirmado</option>
+                <option value="processing" {{#if (eq filters.lifecycle "processing")}}selected{{/if}}>En preparación</option>
+                <option value="shipped" {{#if (eq filters.lifecycle "shipped")}}selected{{/if}}>Enviado</option>
+                <option value="delivered" {{#if (eq filters.lifecycle "delivered")}}selected{{/if}}>Entregado</option>
+                <option value="cancelled" {{#if (eq filters.lifecycle "cancelled")}}selected{{/if}}>Cancelado</option>
+            </select>
             <button onclick="applyFilters()" style="padding:10px 20px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer;">Filtrar</button>
             <button onclick="clearFilters()" style="padding:10px 20px; background:#6c757d; color:white; border:none; border-radius:5px; cursor:pointer;">Limpiar</button>
             <button onclick="exportSalesCsv()" style="padding:10px 20px; background:#17a2b8; color:white; border:none; border-radius:5px; cursor:pointer;">⬇️ Exportar CSV</button>
@@ -62,6 +71,7 @@
                         <th style="padding:12px; text-align:center;">Items</th>
                         <th style="padding:12px; text-align:right;">Total</th>
                         <th style="padding:12px; text-align:center;">Pago</th>
+                        <th style="padding:12px; text-align:center;">Etapa</th>
                         <th style="padding:12px; text-align:center;">Estado</th>
                         <th style="padding:12px; text-align:center;">Acciones</th>
                     </tr>
@@ -92,6 +102,11 @@
                                 {{else}}{{this.paymentMethod}}{{/if}}
                             </span>
                         </td>
+                        <td style="padding:10px; text-align:center; font-size:12px;">
+                            <span style="padding:4px 8px; border-radius:4px; background:#e9ecef; color:#333;">
+                                {{default this.orderLifecycle "pending"}}
+                            </span>
+                        </td>
                         <td style="padding:10px; text-align:center;">
                             <span style="padding:4px 8px; border-radius:4px; font-size:12px;
                                 background:{{#if (eq this.status 'completada')}}#28a745{{else if (eq this.status 'pendiente')}}#ffc107{{else}}#dc3545{{/if}};
@@ -106,7 +121,7 @@
                     </tr>
                     {{/each}}
                     {{#unless sales.length}}
-                    <tr><td colspan="8" style="padding:20px; text-align:center; color:#999;">No hay ventas registradas</td></tr>
+                    <tr><td colspan="9" style="padding:20px; text-align:center; color:#999;">No hay ventas registradas</td></tr>
                     {{/unless}}
                 </tbody>
             </table>
@@ -193,6 +208,17 @@
                         <option value="cancelada">Cancelada</option>
                     </select>
                 </div>
+                <div>
+                    <label>Etapa del pedido</label>
+                    <select id="orderLifecycle" class="full-width">
+                        <option value="pending">pending — Ingresado</option>
+                        <option value="confirmed">confirmed — Confirmado</option>
+                        <option value="processing">processing — En preparación</option>
+                        <option value="shipped">shipped — Enviado</option>
+                        <option value="delivered">delivered — Entregado</option>
+                        <option value="cancelled">cancelled — Cancelado</option>
+                    </select>
+                </div>
                 <div style="grid-column:1/-1;">
                     <label>Notas</label>
                     <textarea id="saleNotes" rows="2" class="full-width"></textarea>
@@ -234,6 +260,18 @@
         tarjeta_debito: 'Tarjeta de débito', tarjeta_credito: 'Tarjeta de crédito',
         tarjeta: 'Tarjeta', otro: 'Otro'
     };
+
+    const LIFECYCLE_LABELS = {
+        pending: 'Ingresado', confirmed: 'Confirmado', processing: 'En preparación',
+        shipped: 'Enviado', delivered: 'Entregado', cancelled: 'Cancelado'
+    };
+
+    function formatHistoryAt(at) {
+        if (!at) return '—';
+        const sec = typeof at._seconds === 'number' ? at._seconds : (typeof at.seconds === 'number' ? at.seconds : null);
+        if (sec != null) return new Date(sec * 1000).toLocaleString();
+        try { return new Date(at).toLocaleString(); } catch { return '—'; }
+    }
 
     let searchTimeout = null;
     let selectedItems = []; // [{ productId, productName, price, stock, quantity }]
@@ -374,6 +412,8 @@
         if (e) params.append('endDate', e);
         if (st) params.append('status', st);
         if (pm) params.append('paymentMethod', pm);
+        const lc = document.getElementById('filterLifecycle').value;
+        if (lc) params.append('lifecycle', lc);
         window.location.href = `/owner/sales?${params.toString()}`;
     }
 
@@ -389,6 +429,8 @@
         if (e) params.append('endDate', e);
         if (st) params.append('status', st);
         if (pm) params.append('paymentMethod', pm);
+        const lc = document.getElementById('filterLifecycle').value;
+        if (lc) params.append('lifecycle', lc);
         const q = params.toString();
         window.location.href = q ? `/owner/sales/export?${q}` : '/owner/sales/export';
     }
@@ -402,6 +444,7 @@
         document.getElementById('itemsContainer').innerHTML = '';
         document.getElementById('totalAmount').textContent = '$0';
         document.getElementById('productSearch').value = '';
+        document.getElementById('productSearch').style.display = '';
         selectedItems = [];
     }
 
@@ -409,6 +452,8 @@
         document.getElementById('modalTitle').innerText = 'Nueva Venta';
         document.getElementById('btnSubmit').innerText  = 'Guardar Venta';
         document.getElementById('saleId').value = '';
+        document.getElementById('orderLifecycle').value = 'pending';
+        document.getElementById('productSearch').style.display = '';
         selectedItems = [];
         renderItems();
         openModal();
@@ -429,6 +474,7 @@
             document.getElementById('userPhone').value = sale.userPhone  || '';
             document.getElementById('paymentMethod').value = sale.paymentMethod || 'efectivo';
             document.getElementById('saleStatus').value = sale.status;
+            document.getElementById('orderLifecycle').value = sale.orderLifecycle || 'pending';
             document.getElementById('saleNotes').value  = sale.notes || '';
 
             // Mostrar items como readonly
@@ -473,6 +519,7 @@
                 <p><strong>Dirección/Entrega:</strong> ${sale.userAddress || '-'}</p>
                 <p><strong>Fecha:</strong> ${new Date(sale.createdAt).toLocaleString()}</p>
                 <p><strong>Estado:</strong> ${sale.status}</p>
+                <p><strong>Etapa:</strong> ${LIFECYCLE_LABELS[sale.orderLifecycle] || sale.orderLifecycle || 'pending'}</p>
                 <p><strong>Método de Pago:</strong> ${PAYMENT_LABELS[sale.paymentMethod] || sale.paymentMethod}</p>
                 <hr style="margin:15px 0;">
                 <h4>Productos:</h4>
@@ -489,6 +536,19 @@
                         <td style="text-align:right; font-weight:bold; padding:8px;">$${sale.total}</td>
                     </tr></tfoot>
                 </table>
+                ${Array.isArray(sale.statusHistory) && sale.statusHistory.length ? `
+                <h4 style="margin-top:18px;">Historial de etapas</h4>
+                <ul style="margin:0; padding-left:18px; font-size:13px; color:#444;">
+                    ${[...sale.statusHistory].reverse().map(h => `
+                        <li style="margin-bottom:6px;">
+                            <strong>${formatHistoryAt(h.at)}</strong>
+                            — ${LIFECYCLE_LABELS[h.orderLifecycle] || h.orderLifecycle || '—'}
+                            <span style="color:#666;">(${h.status || '—'})</span>
+                            ${h.source ? `<span style="color:#888;"> · ${h.source}</span>` : ''}
+                            ${h.note ? `<div style="margin-top:2px; font-style:italic;">${h.note}</div>` : ''}
+                        </li>
+                    `).join('')}
+                </ul>` : ''}
                 ${sale.notes ? `<p style="margin-top:15px;"><strong>Notas:</strong> ${sale.notes}</p>` : ''}
             `;
             document.getElementById('detailsModal').style.display = 'flex';
@@ -519,9 +579,10 @@
         const id = document.getElementById('saleId').value;
 
         const saleData = id ? {
-            status:        document.getElementById('saleStatus').value,
-            paymentMethod: document.getElementById('paymentMethod').value,
-            notes:         document.getElementById('saleNotes').value || undefined,
+            status:          document.getElementById('saleStatus').value,
+            orderLifecycle:  document.getElementById('orderLifecycle').value,
+            paymentMethod:   document.getElementById('paymentMethod').value,
+            notes:           document.getElementById('saleNotes').value || undefined,
         } : {
             userId:        document.getElementById('userId').value || undefined,
             userName:      document.getElementById('userName').value,
@@ -537,6 +598,7 @@
             total:         selectedItems.reduce((sum, i) => sum + i.price * i.quantity, 0),
             paymentMethod: document.getElementById('paymentMethod').value,
             status:        document.getElementById('saleStatus').value,
+            orderLifecycle: document.getElementById('orderLifecycle').value,
             notes:         document.getElementById('saleNotes').value || undefined,
         };
 

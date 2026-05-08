@@ -2,7 +2,14 @@ import * as saleService from "../services/sale.service.js";
 import * as productService from "../services/product.service.js";
 import * as userService from "../services/user.service.js";
 import { saleSchema, saleFilterSchema } from "../schemas/sale.schema.js";
-import { sendNewOrderToOwner, sendOrderAcceptedToClient, sendOrderRejectedToClient } from "../services/email.service.js";
+import { ORDER_LIFECYCLE } from "../services/order.service.js";
+import { verifyOrderAction } from "../utils/orderActionSig.js";
+
+function actionSigFromQuery(q) {
+    const s = q.sig;
+    if (Array.isArray(s)) return s[0] || "";
+    return typeof s === "string" ? s : "";
+}
 
 const PAYMENT_LABELS = {
     efectivo: "Efectivo",
@@ -20,6 +27,7 @@ export const renderSales = async (req, res) => {
         if (req.query.paymentMethod) filters.paymentMethod = req.query.paymentMethod;
         if (req.query.startDate) filters.startDate = req.query.startDate;
         if (req.query.endDate) filters.endDate = req.query.endDate;
+        if (req.query.lifecycle) filters.lifecycle = req.query.lifecycle;
         const salesList = await saleService.getSales(filters);
 
         let stats;
@@ -45,7 +53,13 @@ export const renderSales = async (req, res) => {
             stats,
             products,
             users,
-            filters,
+            filters: {
+                status: req.query.status || '',
+                paymentMethod: req.query.paymentMethod || '',
+                startDate: req.query.startDate || '',
+                endDate: req.query.endDate || '',
+                lifecycle: req.query.lifecycle || '',
+            },
         });
     } catch (error) {
         console.error("❌ Error al renderizar ventas:", error);
@@ -71,12 +85,6 @@ export const createSale = async (req, res) => {
 
         const sale = await saleService.createSale(result.data);
 
-        try {
-            await sendNewOrderToOwner(sale);
-            console.log("📧 Email de nuevo pedido enviado a la propietaria");
-        } catch (emailError) {
-            console.error("⚠️ Error enviando email a propietaria:", emailError.message);
-        }
 
         res.status(201).json({ status: "success", message: "Venta creada exitosamente", data: sale });
     } catch (error) {
@@ -95,6 +103,10 @@ export const updateSale = async (req, res) => {
         if (req.body.status && ['pendiente', 'completada', 'cancelada'].includes(req.body.status)) {
             updateData.status = req.body.status;
         }
+        const validLc = new Set(Object.values(ORDER_LIFECYCLE));
+        if (req.body.orderLifecycle && validLc.has(req.body.orderLifecycle)) {
+            updateData.orderLifecycle = req.body.orderLifecycle;
+        }
 
         // Normalizar paymentMethod con cardType
         let pm = req.body.paymentMethod;
@@ -112,7 +124,7 @@ export const updateSale = async (req, res) => {
             return res.status(400).json({ error: "No hay datos válidos para actualizar" });
         }
 
-        await saleService.updateSale(id, updateData);
+        await saleService.updateSale(id, updateData, { source: "admin_panel" });
         res.json({ status: "success", message: "Venta actualizada exitosamente" });
     } catch (error) {
         console.error("Error al actualizar venta:", error);
@@ -141,10 +153,11 @@ export const exportSalesCsv = async (req, res) => {
         if (req.query.startDate) filters.startDate = req.query.startDate;
         if (req.query.endDate) filters.endDate = req.query.endDate;
         if (req.query.userId) filters.userId = req.query.userId;
+        if (req.query.lifecycle) filters.lifecycle = req.query.lifecycle;
 
         const salesList = await saleService.getSales(filters);
 
-        const header = ['NumeroVenta','Fecha','Cliente','Email','Telefono','MetodoPago','Estado','Total','CantidadItems','ProductosDetalle'];
+        const header = ['NumeroVenta','Fecha','Cliente','Email','Telefono','MetodoPago','Estado','Etapa','Total','CantidadItems','ProductosDetalle'];
 
         const rows = salesList.map(sale => {
             const date = sale.createdAt instanceof Date
@@ -165,6 +178,7 @@ export const exportSalesCsv = async (req, res) => {
                 sale.userPhone || '',
                 pmLabel,
                 sale.status || '',
+                sale.orderLifecycle || '',
                 sale.total ?? '',
                 sale.items ? sale.items.length : 0,
                 productos
@@ -202,6 +216,11 @@ export const acceptSale = async (req, res) => {
     try {
         const { id } = req.params;
         const estimatedDelivery = req.query.delivery || null;
+        const sig = actionSigFromQuery(req.query);
+        if (!verifyOrderAction(id, "accept", sig)) {
+            return res.status(403).send(pageHtml("🔒 Enlace inválido", "#856404", "Este enlace de acción expiró o no es válido. Gestioná el pedido desde el panel de ventas.", null));
+        }
+
         const sale = await saleService.getSaleById(id);
 
         if (!sale) return res.status(404).send(pageHtml('❌ Pedido no encontrado', '#dc3545', 'No se encontró el pedido.', null));
@@ -244,6 +263,7 @@ export const acceptSale = async (req, res) => {
                             ${sale.notes ? `<p><strong>Notas:</strong> ${sale.notes}</p>` : ''}
                         </div>
                         <form action="/owner/sales/${id}/accept" method="GET">
+                            <input type="hidden" name="sig" value="${sig.replace(/"/g, '&quot;')}">
                             <label>Horario estimado de entrega</label>
                             <input type="text" name="delivery" placeholder="ej: Hoy entre 14:00 y 16:00" required>
                             <p class="hint">Este horario le llegará al cliente por email</p>
@@ -254,12 +274,7 @@ export const acceptSale = async (req, res) => {
             `);
         }
 
-        await saleService.updateSale(id, { status: 'completada', estimatedDelivery });
-        try {
-            await sendOrderAcceptedToClient({ ...sale, status: 'completada', estimatedDelivery });
-        } catch (emailError) {
-            console.error("⚠️ Error enviando email al cliente:", emailError.message);
-        }
+        await saleService.updateSale(id, { status: 'completada', estimatedDelivery }, { source: 'email_accept', notifyClientAccept: true });
 
         return res.send(`
             <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pedido Aceptado</title>
@@ -293,6 +308,11 @@ export const acceptSale = async (req, res) => {
 export const rejectSale = async (req, res) => {
     try {
         const { id } = req.params;
+        const sig = actionSigFromQuery(req.query);
+        if (!verifyOrderAction(id, "reject", sig)) {
+            return res.status(403).send(pageHtml("🔒 Enlace inválido", "#856404", "Este enlace de acción expiró o no es válido. Gestioná rechazos desde el panel.", null));
+        }
+
         const sale = await saleService.getSaleById(id);
         if (!sale) return res.status(404).send(pageHtml('❌ Pedido no encontrado', '#dc3545', 'No se encontró el pedido.', null));
 
@@ -301,12 +321,7 @@ export const rejectSale = async (req, res) => {
                 `Este pedido ya fue procesado. Estado actual: <strong>${sale.status}</strong>`, id));
         }
 
-        await saleService.updateSale(id, { status: 'cancelada' });
-        try {
-            await sendOrderRejectedToClient(sale);
-        } catch (emailError) {
-            console.error("⚠️ Error enviando email al cliente:", emailError.message);
-        }
+        await saleService.updateSale(id, { status: 'cancelada' }, { source: 'email_reject' });
 
         return res.send(`
             <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pedido Rechazado</title>

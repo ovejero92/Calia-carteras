@@ -22,9 +22,13 @@ export const saleSchema = z.object({
     status: z.enum(['pendiente', 'completada', 'cancelada'], {
         errorMap: () => ({ message: "Estado inválido" })
     }).default('pendiente'),
+    orderLifecycle: z.enum(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled']).optional(),
     estimatedDelivery: z.string().optional(),
     notes: z.string().optional(),
-    cardType: z.enum(['debito', 'credito']).optional()
+    cardType: z.enum(['debito', 'credito']).optional(),
+    /** Costo de envío calculado en checkout (ARS). El total se valida en el servidor. */
+    shippingFee: z.coerce.number().nonnegative().optional().default(0),
+    deliveryMethod: z.enum(['retiro', 'envio']).optional(),
 });
 
 export const saleFilterSchema = z.object({

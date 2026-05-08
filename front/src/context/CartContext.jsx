@@ -88,13 +88,20 @@ export function CartProvider({ children }) {
   }, [state]);
 
   const addItem = (product, quantity = 1) => {
+    const discountPct = Number(product.discount) || 0;
+    const list = Number(product.price) || 0;
+    const unitPrice =
+      discountPct > 0
+        ? Math.round(list * (1 - discountPct / 100) * 100) / 100
+        : list;
+
     dispatch({
       type: 'ADD_ITEM',
       payload: {
         id: product.id,
         name: product.name,
-        price: product.price,
-        image: product.image,
+        price: unitPrice,
+        image: product.image || product.images?.[0],
         stock: product.stock,
         quantity
       }

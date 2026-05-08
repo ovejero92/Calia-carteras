@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { signOrderAction } from '../utils/orderActionSig.js';
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -19,6 +20,10 @@ export const sendNewOrderToOwner = async (sale) => {
     `).join('');
 
     const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3001}`;
+    const sigAccept = signOrderAction(sale.id, 'accept');
+    const sigReject = signOrderAction(sale.id, 'reject');
+    const qAccept = sigAccept ? `?sig=${encodeURIComponent(sigAccept)}` : '';
+    const qReject = sigReject ? `?sig=${encodeURIComponent(sigReject)}` : '';
 
     await transporter.sendMail({
         from: `"Calia - Pedidos" <${process.env.GMAIL_USER}>`,
@@ -56,11 +61,11 @@ export const sendNewOrderToOwner = async (sale) => {
                     </tfoot>
                 </table>
                 <div style="margin-top:30px;text-align:center;">
-                    <a href="${baseUrl}/owner/sales/${sale.id}/accept"
+                    <a href="${baseUrl}/owner/sales/${sale.id}/accept${qAccept}"
                        style="display:inline-block;padding:14px 30px;background:#28a745;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;margin-right:15px;">
                         ✅ Aceptar Pedido
                     </a>
-                    <a href="${baseUrl}/owner/sales/${sale.id}/reject"
+                    <a href="${baseUrl}/owner/sales/${sale.id}/reject${qReject}"
                        style="display:inline-block;padding:14px 30px;background:#dc3545;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;">
                         ❌ Rechazar Pedido
                     </a>
