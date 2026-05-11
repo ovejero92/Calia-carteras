@@ -15,13 +15,16 @@ const Cart = () => {
 
   if (items.length === 0) {
     return (
-      <div className="text-center py-16">
-        <ShoppingBagIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Tu carrito está vacío</h2>
-        <p className="text-gray-600 mb-6">¡Agrega algunos productos para comenzar!</p>
+      <div className="text-center py-20 max-w-md mx-auto">
+        <ShoppingBagIcon className="w-14 h-14 text-neutral-300 mx-auto mb-5" />
+        <h2 className="font-editorial text-2xl sm:text-3xl font-semibold mb-2" style={{ color: 'var(--color-text)' }}>
+          Tu bolsa está vacía
+        </h2>
+        <p className="text-sm opacity-55 mb-8 leading-relaxed">Agregá piezas desde el catálogo — te van a quedar incluso mejor en persona.</p>
         <Link
           to="/catalog"
-          className="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+          className="inline-flex items-center px-7 py-3.5 rounded-full text-sm font-semibold text-white transition-transform active:scale-[0.98]"
+          style={{ background: 'var(--color-primary)' }}
         >
           Explorar catálogo
         </Link>
@@ -30,17 +33,23 @@ const Cart = () => {
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Carrito de compras</h1>
+    <div className="pb-8">
+      <h1 className="font-editorial text-3xl sm:text-4xl font-semibold tracking-tight mb-10" style={{ color: 'var(--color-text)' }}>
+        Tu bolsa
+      </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => {
             const imageUrl = item.image || '/placeholder-product.svg';
             return (
-              <div key={item.id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <div className="flex space-x-4">
-                  <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+              <div
+                key={item.id}
+                className="p-5 sm:p-6 rounded-2xl border border-black/[0.07] shadow-sm"
+                style={{ background: 'var(--color-card-bg)' }}
+              >
+                <div className="flex gap-4">
+                  <div className="w-24 h-28 sm:w-28 sm:h-32 bg-neutral-100 rounded-xl overflow-hidden flex-shrink-0">
                     <img
                       src={imageUrl}
                       alt={item.name}
@@ -52,39 +61,43 @@ const Cart = () => {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                    <h3 className="text-base font-semibold mb-1 leading-snug" style={{ color: 'var(--color-text)' }}>
                       {item.name}
                     </h3>
-                    <p className="text-primary-600 font-medium mb-2">
+                    <p className="text-sm font-semibold mb-3" style={{ color: 'var(--color-primary)' }}>
                       {formatPrice(item.price)} c/u
                     </p>
 
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-2">
                       <button
+                        type="button"
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="p-1 border border-gray-300 rounded hover:bg-gray-50"
+                        className="p-2 border border-black/10 rounded-lg hover:bg-neutral-50 transition-colors"
                       >
                         <MinusIcon className="w-4 h-4" />
                       </button>
-                      <span className="px-3 py-1 border border-gray-300 rounded min-w-12 text-center">
+                      <span className="px-4 py-1.5 border border-black/10 rounded-lg min-w-12 text-center text-sm font-semibold">
                         {item.quantity}
                       </span>
                       <button
+                        type="button"
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="p-1 border border-gray-300 rounded hover:bg-gray-50"
+                        className="p-2 border border-black/10 rounded-lg hover:bg-neutral-50 transition-colors"
                       >
                         <PlusIcon className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end justify-between">
-                    <div className="text-lg font-semibold text-gray-900">
+                  <div className="flex flex-col items-end justify-between shrink-0">
+                    <div className="text-base font-bold" style={{ color: 'var(--color-text)' }}>
                       {formatPrice(item.price * item.quantity)}
                     </div>
                     <button
+                      type="button"
                       onClick={() => removeItem(item.id)}
-                      className="text-red-600 hover:text-red-800 p-1"
+                      className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
+                      aria-label="Quitar"
                     >
                       <TrashIcon className="w-5 h-5" />
                     </button>
@@ -94,10 +107,11 @@ const Cart = () => {
             );
           })}
 
-          <div className="flex justify-end">
+          <div className="flex justify-end pt-2">
             <button
+              type="button"
               onClick={clearCart}
-              className="text-red-600 hover:text-red-800 text-sm font-medium"
+              className="text-sm font-semibold text-red-600 hover:text-red-800"
             >
               Vaciar carrito
             </button>
@@ -105,39 +119,42 @@ const Cart = () => {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 sticky top-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Resumen del pedido
+          <div className="rounded-2xl border border-black/[0.07] p-6 sm:p-7 sticky top-24 shadow-sm" style={{ background: 'var(--color-card-bg)' }}>
+            <h3 className="text-base font-semibold mb-5" style={{ color: 'var(--color-text)' }}>
+              Resumen
             </h3>
 
-            <div className="space-y-3 mb-4">
-              <div className="flex justify-between text-sm">
+            <div className="space-y-3 mb-4 text-sm">
+              <div className="flex justify-between opacity-75">
                 <span>Productos ({itemCount})</span>
-                <span>{formatPrice(total)}</span>
+                <span className="font-medium">{formatPrice(total)}</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between opacity-75">
                 <span>Envío</span>
-                <span>A calcular</span>
+                <span className="font-medium">A coordinar</span>
               </div>
             </div>
 
-            <div className="border-t pt-4 mb-6">
-              <div className="flex justify-between text-lg font-semibold">
+            <div className="border-t border-black/10 pt-4 mb-6">
+              <div className="flex justify-between text-lg font-bold">
                 <span>Total</span>
                 <span>{formatPrice(total)}</span>
               </div>
             </div>
 
             <button
+              type="button"
               onClick={() => navigate('/checkout')}
-              className="w-full bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 font-semibold transition-colors"
+              className="w-full text-white px-6 py-3.5 rounded-full font-semibold text-sm transition-transform active:scale-[0.98]"
+              style={{ background: 'var(--color-card-btn-bg, var(--color-primary))', color: 'var(--color-card-btn-text, #fff)' }}
             >
               Proceder al pago
             </button>
 
             <Link
               to="/catalog"
-              className="block text-center mt-4 text-primary-600 hover:text-primary-800 text-sm font-medium"
+              className="block text-center mt-5 text-sm font-semibold opacity-55 hover:opacity-90 transition-opacity"
+              style={{ color: 'var(--color-primary)' }}
             >
               Continuar comprando
             </Link>

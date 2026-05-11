@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -14,34 +14,43 @@ import FAQ from "./pages/FAQ";
 import "./App.css";
 import { Toaster } from "sonner";
 
+function AppShell() {
+  const location = useLocation();
+  const isHome = location.pathname === "/";
+
+  return (
+    <div
+      className="min-h-screen w-full"
+      style={{
+        backgroundColor: "var(--color-bg)",
+        color: "var(--color-text)",
+      }}
+    >
+      <Toaster richColors closeButton position="top-center" />
+      <Header />
+      <main className={isHome ? "w-full min-h-[40vh]" : "w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-10 lg:py-14"}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/catalog" element={<Catalog />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-tracking" element={<OrderTracking />} />
+          <Route path="/faq" element={<FAQ />} />
+        </Routes>
+      </main>
+      <CartDrawer />
+      <Footer />
+    </div>
+  );
+}
+
 function App() {
   return (
     <SettingsProvider>
       <CartProvider>
         <Router>
-          <div
-            className="min-h-screen bg-gray-50"
-            style={{
-              backgroundColor: "var(--color-bg)",
-              color: "var(--color-text)",
-            }}
-          >
-            <Toaster richColors closeButton position="top-center" />
-            <Header />
-            <main className="container mx-auto px-4 py-8">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/catalog" element={<Catalog />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/order-tracking" element={<OrderTracking />} />
-                <Route path="/faq" element={<FAQ />} />
-              </Routes>
-              <CartDrawer />
-            </main>
-            <Footer />
-          </div>
+          <AppShell />
         </Router>
       </CartProvider>
     </SettingsProvider>

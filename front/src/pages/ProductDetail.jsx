@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useCart } from '../context/CartContext';
-import { effectiveUnitPrice } from '../utils/pricing';
+import { effectiveUnitPrice, formatInstallments, formatMoneyARS } from '../utils/pricing';
 import { toast } from 'sonner';
 import {
   ShoppingBagIcon,
@@ -121,22 +121,24 @@ const ProductDetail = () => {
     : [];
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto pb-12">
 
       <button
+        type="button"
         onClick={() => navigate('/catalog')}
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition mb-8"
+        className="inline-flex items-center gap-1.5 text-sm opacity-55 hover:opacity-100 transition mb-8"
+        style={{ color: 'var(--color-text)' }}
       >
         <ArrowLeftIcon className="w-4 h-4" />
         Volver al catálogo
       </button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20">
 
         <div className="space-y-3">
 
           <div
-            className="aspect-square bg-gray-50 rounded-2xl overflow-hidden relative group cursor-zoom-in"
+            className="aspect-[4/5] lg:aspect-square bg-neutral-100 rounded-3xl overflow-hidden relative group cursor-zoom-in border border-black/[0.06]"
             onMouseMove={(e) => {
               const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
               const x = ((e.pageX - left) / width) * 100;
@@ -220,22 +222,25 @@ const ProductDetail = () => {
 
         <div className="flex flex-col gap-5">
 
-          <h1 className="text-2xl font-bold text-gray-900 leading-snug">
+          <h1 className="font-editorial text-3xl sm:text-4xl font-semibold leading-tight tracking-tight" style={{ color: 'var(--color-text)' }}>
             {product.name}
           </h1>
 
-          <div className="flex items-baseline gap-3">
-            <span
-              className="text-xl font-bold"
-              style={{ color: 'var(--color-card-price, #1d4ed8)' }}
-            >
-              {formatPrice(finalPrice)}
-            </span>
-            {hasDiscount && (
-              <span className="text-sm text-gray-400 line-through">
-                {formatPrice(product.price)}
+          <div className="flex flex-col gap-1">
+            <div className="flex flex-wrap items-baseline gap-3">
+              {hasDiscount && (
+                <span className="text-base text-neutral-400 line-through">
+                  {formatMoneyARS(product.price)}
+                </span>
+              )}
+              <span
+                className="text-2xl font-bold tracking-tight"
+                style={{ color: 'var(--color-card-price, #1d4ed8)' }}
+              >
+                {formatMoneyARS(finalPrice)}
               </span>
-            )}
+            </div>
+            <p className="text-sm text-neutral-500">{formatInstallments(finalPrice)}</p>
           </div>
 
           <div className="text-sm font-medium">
@@ -319,9 +324,10 @@ const ProductDetail = () => {
               </div>
 
               <button
+                type="button"
                 onClick={handleAddToCart}
                 disabled={addingToCart}
-                className="w-full flex items-center justify-center gap-2 text-white px-6 py-3 rounded-xl font-semibold text-sm transition active:scale-95"
+                className="w-full flex items-center justify-center gap-2 text-white px-6 py-4 rounded-full font-semibold text-sm transition active:scale-[0.98] shadow-lg"
                 style={{ backgroundColor: 'var(--color-card-btn-bg, #1d4ed8)' }}
               >
                 <ShoppingBagIcon className="w-5 h-5" />
@@ -354,8 +360,8 @@ const ProductDetail = () => {
       </div>
 
       {relatedProducts.length > 0 && (
-        <div className="mt-20 border-t border-gray-100 pt-10">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">
+        <div className="mt-20 border-t border-black/[0.06] pt-12">
+          <h2 className="font-editorial text-2xl sm:text-3xl font-semibold mb-8 tracking-tight" style={{ color: 'var(--color-text)' }}>
             También te puede interesar
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
